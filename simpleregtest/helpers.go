@@ -7,8 +7,8 @@ package simpleregtest
 
 import (
 	"fmt"
-	"github.com/btcsuite/btcd/integration"
 	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/pin"
 	"reflect"
 	"strconv"
 	"testing"
@@ -133,7 +133,7 @@ func ConnectNode(from *harness.Harness, to *harness.Harness) error {
 		if len(peerInfo) > numPeers {
 			return nil
 		}
-		integration.Sleep(1000)
+		pin.Sleep(1000)
 	}
 
 	return fmt.Errorf("failed to connet node")
