@@ -67,10 +67,11 @@ type InMemoryWallet struct {
 	nodeRPC *rpcclient.Client
 
 	sync.RWMutex
+	RPCClientFactory cointest.RPCClientFactory
 }
 
 // Network returns current network of the wallet
-func (wallet *InMemoryWallet) Network() *chaincfg.Params {
+func (wallet *InMemoryWallet) Network() cointest.Network {
 	return wallet.net
 }
 
@@ -104,7 +105,7 @@ func (wallet *InMemoryWallet) Start(args *cointest.TestWalletStartArgs) error {
 
 	//handlers.OnClientConnected = wallet.onDcrdConnect
 
-	wallet.nodeRPC = cointest.NewRPCConnection(args.NodeRPCConfig, 5, handlers)
+	wallet.nodeRPC = cointest.NewRPCConnection(wallet.RPCClientFactory, args.NodeRPCConfig, 5, handlers).(*rpcclient.Client)
 	pin.AssertNotNil("nodeRPC", wallet.nodeRPC)
 
 	// Filter transactions that pay to the coinbase associated with the
@@ -392,7 +393,7 @@ func (wallet *InMemoryWallet) newAddress() (dcrutil.Address, error) {
 // NewAddress returns a fresh address spendable by the wallet.
 //
 // This function is safe for concurrent access.
-func (wallet *InMemoryWallet) NewAddress(_ *cointest.NewAddressArgs) (dcrutil.Address, error) {
+func (wallet *InMemoryWallet) NewAddress(_ *cointest.NewAddressArgs) (cointest.Address, error) {
 	wallet.Lock()
 	defer wallet.Unlock()
 
@@ -508,7 +509,7 @@ func (wallet *InMemoryWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 // include a change output indicated by the change boolean.
 //
 // This function is safe for concurrent access.
-func (wallet *InMemoryWallet) CreateTransaction(args *cointest.CreateTransactionArgs) (*wire.MsgTx, error) {
+func (wallet *InMemoryWallet) CreateTransaction(args *cointest.CreateTransactionArgs) (cointest.CreatedTransactionTx, error) {
 
 	wallet.Lock()
 	defer wallet.Unlock()
@@ -589,7 +590,7 @@ func (wallet *InMemoryWallet) UnlockOutputs(inputs []*wire.TxIn) {
 // ConfirmedBalance returns the confirmed balance of the wallet.
 //
 // This function is safe for concurrent access.
-func (wallet *InMemoryWallet) ConfirmedBalance() dcrutil.Amount {
+func (wallet *InMemoryWallet) ConfirmedBalance() cointest.CoinsAmount {
 	wallet.RLock()
 	defer wallet.RUnlock()
 
