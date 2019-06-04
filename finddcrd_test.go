@@ -1,4 +1,4 @@
-package decred_regression_testing
+package dcrregtest
 
 import (
 	"github.com/jfixby/pin"
