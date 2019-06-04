@@ -8,6 +8,7 @@ package simpleregtest
 import (
 	"fmt"
 	"github.com/jfixby/cointest"
+	"github.com/jfixby/dcrregtest"
 	"github.com/jfixby/pin"
 	"path/filepath"
 
@@ -81,7 +82,7 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 	}
 
 	walletConfig := &cointest.TestWalletConfig{
-		Seed:          cointest.NewTestSeed(seedSalt),
+		Seed:          dcrregtest.NewTestSeed(seedSalt),
 		WalletRPCHost: localhost,
 		WalletRPCPort: walletRPC,
 		ActiveNet:     testSetup.ActiveNet,
