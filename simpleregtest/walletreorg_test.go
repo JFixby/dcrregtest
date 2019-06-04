@@ -26,7 +26,7 @@ func TestMemWalletReorg(t *testing.T) {
 	h.Wallet.Sync()
 
 	expectedBalance := dcrutil.Amount(1200 * dcrutil.AtomsPerCoin)
-	walletBalance := h.Wallet.ConfirmedBalance()
+	walletBalance := h.Wallet.ConfirmedBalance().(dcrutil.Amount)
 	if expectedBalance != walletBalance {
 		t.Fatalf("wallet balance incorrect: expected %v, got %v",
 			expectedBalance, walletBalance)
@@ -46,7 +46,7 @@ func TestMemWalletReorg(t *testing.T) {
 	// chain should have been decimated in favor of the main h'
 	// chain.
 	expectedBalance = dcrutil.Amount(0)
-	walletBalance = h.Wallet.ConfirmedBalance()
+	walletBalance = h.Wallet.ConfirmedBalance().(dcrutil.Amount)
 	if expectedBalance != walletBalance {
 		t.Fatalf("wallet balance incorrect: expected %v, got %v",
 			expectedBalance, walletBalance)

@@ -40,11 +40,12 @@ type DefaultTestNode struct {
 
 	miningAddress dcrutil.Address
 
-	network *chaincfg.Params
+	network          cointest.Network
+	RPCClientFactory cointest.RPCClientFactory
 }
 
 // RPCConnectionConfig produces a new connection config instance for RPC client
-func (node *DefaultTestNode) RPCConnectionConfig() *rpcclient.ConnConfig {
+func (node *DefaultTestNode) RPCConnectionConfig() cointest.RPCConnectionConfig {
 	file := node.CertFile()
 	fmt.Println("reading: " + file)
 	cert, err := ioutil.ReadFile(file)
@@ -88,7 +89,7 @@ func (node *DefaultTestNode) KeyFile() string {
 }
 
 // Network returns current network of the node
-func (node *DefaultTestNode) Network() *chaincfg.Params {
+func (node *DefaultTestNode) Network() cointest.Network {
 	return node.network
 }
 
@@ -106,7 +107,7 @@ func (node *DefaultTestNode) Start(args *cointest.TestNodeStartArgs) {
 	fmt.Println("Start node process...")
 	pin.MakeDirs(node.appDir)
 
-	node.miningAddress = args.MiningAddress
+	node.miningAddress = args.MiningAddress.(dcrutil.Address)
 
 	exec := node.NodeExecutablePathProvider.Executable()
 	node.externalProcess.CommandName = exec
@@ -179,7 +180,7 @@ func (node *DefaultTestNode) cookArguments(extraArguments map[string]interface{}
 }
 
 // networkFor resolves network argument for node and wallet console commands
-func networkFor(net *chaincfg.Params) string {
+func networkFor(net cointest.Network) string {
 	if net == &chaincfg.SimNetParams {
 		return "simnet"
 	}

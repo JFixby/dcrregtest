@@ -63,7 +63,7 @@ func TestBallance(t *testing.T) {
 	r := ObtainHarness(t.Name() + ".8")
 
 	expectedBalance := dcrutil.Amount(7200 * dcrutil.AtomsPerCoin)
-	actualBalance := r.Wallet.ConfirmedBalance()
+	actualBalance := r.Wallet.ConfirmedBalance().(dcrutil.Amount)
 
 	if actualBalance != expectedBalance {
 		t.Fatalf("expected wallet balance of %v instead have %v",
