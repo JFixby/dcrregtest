@@ -483,7 +483,7 @@ func (wallet *InMemoryWallet) SendOutputs(outputs []*wire.TxOut,
 		return nil, err
 	}
 
-	return wallet.nodeRPC.SendRawTransaction(tx, true)
+	return wallet.nodeRPC.SendRawTransaction(tx.(*wire.MsgTx), true)
 }
 
 // SendOutputsWithoutChange creates and sends a transaction that pays to the
@@ -500,7 +500,7 @@ func (wallet *InMemoryWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 		return nil, err
 	}
 
-	return wallet.nodeRPC.SendRawTransaction(tx, true)
+	return wallet.nodeRPC.SendRawTransaction(tx.(*wire.MsgTx), true)
 }
 
 // CreateTransaction returns a fully signed transaction paying to the specified
@@ -520,12 +520,12 @@ func (wallet *InMemoryWallet) CreateTransaction(args *cointest.CreateTransaction
 	// selection shortly below.
 	var outputAmt dcrutil.Amount
 	for _, output := range args.Outputs {
-		outputAmt += dcrutil.Amount(output.Value)
-		tx.AddTxOut(output)
+		outputAmt += dcrutil.Amount(output.(*wire.TxOut).Value)
+		tx.AddTxOut(output.(*wire.TxOut))
 	}
 
 	// Attempt to fund the transaction with spendable utxos.
-	if err := wallet.fundTx(tx, outputAmt, args.FeeRate); err != nil {
+	if err := wallet.fundTx(tx, outputAmt, args.FeeRate.(dcrutil.Amount)); err != nil {
 		return nil, err
 	}
 
