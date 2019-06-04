@@ -13,7 +13,7 @@ require (
 	github.com/decred/dcrd/rpcclient v1.1.0
 	github.com/decred/dcrd/txscript v1.0.2
 	github.com/decred/dcrd/wire v1.2.0
-	github.com/jfixby/cointest v0.0.0-20190602123155-0ebbc5dce037
+	github.com/jfixby/cointest v0.0.0-20190604143106-83da63d1a763
 	github.com/jfixby/pin v0.0.0-20190604132358-d174b38abe5c
 	github.com/picfight/pfcd_builder v0.0.0-20190316212115-c65045308bbd
 )
