@@ -6,6 +6,8 @@
 package simpleregtest
 
 import (
+	"github.com/decred/dcrd/dcrutil"
+	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/cointest"
 	"testing"
 	"time"
@@ -71,7 +73,7 @@ func TestJoinMempools(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 
 	// Assert main test harness has no transactions in its mempool.
-	pooledHashes, err := r.NodeRPCClient().GetRawMempool(dcrjson.GRMAll)
+	pooledHashes, err := r.NodeRPCClient().(*rpcclient.Client).GetRawMempool(dcrjson.GRMAll)
 	if err != nil {
 		t.Fatalf("unable to get mempool for main test harness: %v", err)
 	}
@@ -100,7 +102,7 @@ func TestJoinMempools(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate address: %v", err)
 	}
-	addrScript, err := txscript.PayToAddrScript(addr)
+	addrScript, err := txscript.PayToAddrScript(addr.(dcrutil.Address))
 	if err != nil {
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
@@ -113,7 +115,7 @@ func TestJoinMempools(t *testing.T) {
 	if err != nil {
 		t.Fatalf("coinbase spend failed: %v", err)
 	}
-	if _, err := r.NodeRPCClient().SendRawTransaction(testTx, true); err != nil {
+	if _, err := r.NodeRPCClient().(*rpcclient.Client).SendRawTransaction(testTx, true); err != nil {
 		t.Fatalf("send transaction failed: %v", err)
 	}
 
@@ -122,7 +124,7 @@ func TestJoinMempools(t *testing.T) {
 	harnessSynced := make(chan struct{})
 	go func() {
 		for {
-			poolHashes, err := r.NodeRPCClient().GetRawMempool(dcrjson.GRMAll)
+			poolHashes, err := r.NodeRPCClient().(*rpcclient.Client).GetRawMempool(dcrjson.GRMAll)
 			if err != nil {
 				t.Fatalf("failed to retrieve harness mempool: %v", err)
 			}
@@ -165,7 +167,7 @@ func TestJoinMempools(t *testing.T) {
 
 	// Send the transaction to the local harness which will result in synced
 	// mempools.
-	if _, err := h.NodeRPCClient().SendRawTransaction(testTx, true); err != nil {
+	if _, err := h.NodeRPCClient().(*rpcclient.Client).SendRawTransaction(testTx, true); err != nil {
 		t.Fatalf("send transaction failed: %v", err)
 	}
 

@@ -7,6 +7,7 @@ package simpleregtest
 
 import (
 	"bytes"
+	"github.com/decred/dcrd/rpcclient"
 	"testing"
 )
 
@@ -17,18 +18,18 @@ func TestGetBestBlock(t *testing.T) {
 	//}
 	r := ObtainHarness(mainHarnessName)
 
-	_, prevbestHeight, err := r.NodeRPCClient().GetBestBlock()
+	_, prevbestHeight, err := r.NodeRPCClient().(*rpcclient.Client).GetBestBlock()
 	if err != nil {
 		t.Fatalf("Call to `getbestblock` failed: %v", err)
 	}
 
 	// Create a new block connecting to the current tip.
-	generatedBlockHashes, err := r.NodeRPCClient().Generate(1)
+	generatedBlockHashes, err := r.NodeRPCClient().(*rpcclient.Client).Generate(1)
 	if err != nil {
 		t.Fatalf("Unable to generate block: %v", err)
 	}
 
-	bestHash, bestHeight, err := r.NodeRPCClient().GetBestBlock()
+	bestHash, bestHeight, err := r.NodeRPCClient().(*rpcclient.Client).GetBestBlock()
 	if err != nil {
 		t.Fatalf("Call to `getbestblock` failed: %v", err)
 	}

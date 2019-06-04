@@ -55,7 +55,7 @@ func syncMempools(nodes []*cointest.Harness) error {
 
 	for !poolsMatch {
 	retry:
-		firstPool, err := nodes[0].NodeRPCClient().GetRawMempool(dcrjson.GRMAll)
+		firstPool, err := nodes[0].NodeRPCClient().(*rpcclient.Client).GetRawMempool(dcrjson.GRMAll)
 		if err != nil {
 			return err
 		}
@@ -64,7 +64,7 @@ func syncMempools(nodes []*cointest.Harness) error {
 		// first node, then we're done. Otherwise, drop back to the top
 		// of the loop and retry after a short wait period.
 		for _, node := range nodes[1:] {
-			nodePool, err := node.NodeRPCClient().GetRawMempool(dcrjson.GRMAll)
+			nodePool, err := node.NodeRPCClient().(*rpcclient.Client).GetRawMempool(dcrjson.GRMAll)
 			if err != nil {
 				return err
 			}
@@ -90,7 +90,7 @@ func syncBlocks(nodes []*cointest.Harness) error {
 		blockHeights := make(map[int64]struct{})
 
 		for _, node := range nodes {
-			blockHeight, err := node.NodeRPCClient().GetBlockCount()
+			blockHeight, err := node.NodeRPCClient().(*rpcclient.Client).GetBlockCount()
 			if err != nil {
 				return err
 			}
@@ -113,20 +113,20 @@ func syncBlocks(nodes []*cointest.Harness) error {
 // therefore in the case of disconnects, "from" will attempt to reestablish a
 // connection to the "to" harness.
 func ConnectNode(from *cointest.Harness, to *cointest.Harness) error {
-	peerInfo, err := from.NodeRPCClient().GetPeerInfo()
+	peerInfo, err := from.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
 	if err != nil {
 		return err
 	}
 	numPeers := len(peerInfo)
 
 	targetAddr := to.P2PAddress()
-	if err := from.NodeRPCClient().AddNode(targetAddr, rpcclient.ANAdd); err != nil {
+	if err := from.NodeRPCClient().(*rpcclient.Client).AddNode(targetAddr, rpcclient.ANAdd); err != nil {
 		return err
 	}
 
 	// Block until a new connection has been established.
 	for attempts := 5; attempts > 0; attempts-- {
-		peerInfo, err = from.NodeRPCClient().GetPeerInfo()
+		peerInfo, err = from.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
 		if err != nil {
 			return err
 		}
@@ -151,7 +151,7 @@ func generateTestChain(numToGenerate uint32, node *rpcclient.Client) error {
 }
 
 func assertConnectedTo(t *testing.T, nodeA *cointest.Harness, nodeB *cointest.Harness) {
-	nodeAPeers, err := nodeA.NodeRPCClient().GetPeerInfo()
+	nodeAPeers, err := nodeA.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
 	if err != nil {
 		t.Fatalf("unable to get nodeA's peer info")
 	}

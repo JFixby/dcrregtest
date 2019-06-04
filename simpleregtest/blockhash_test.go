@@ -7,6 +7,7 @@ package simpleregtest
 
 import (
 	"bytes"
+	"github.com/decred/dcrd/rpcclient"
 	"testing"
 )
 
@@ -16,17 +17,17 @@ func TestGetBlockHash(t *testing.T) {
 	//}
 	r := ObtainHarness(mainHarnessName)
 	// Create a new block connecting to the current tip.
-	generatedBlockHashes, err := r.NodeRPCClient().Generate(1)
+	generatedBlockHashes, err := r.NodeRPCClient().(*rpcclient.Client).Generate(1)
 	if err != nil {
 		t.Fatalf("Unable to generate block: %v", err)
 	}
 
-	info, err := r.NodeRPCClient().GetInfo()
+	info, err := r.NodeRPCClient().(*rpcclient.Client).GetInfo()
 	if err != nil {
 		t.Fatalf("call to getinfo cailed: %v", err)
 	}
 
-	blockHash, err := r.NodeRPCClient().GetBlockHash(int64(info.Blocks))
+	blockHash, err := r.NodeRPCClient().(*rpcclient.Client).GetBlockHash(int64(info.Blocks))
 	if err != nil {
 		t.Fatalf("Call to `getblockhash` failed: %v", err)
 	}
