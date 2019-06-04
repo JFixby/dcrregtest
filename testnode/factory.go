@@ -7,6 +7,7 @@ package testnode
 
 import (
 	"github.com/jfixby/cointest"
+	"github.com/jfixby/dcrregtest"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"net"
@@ -20,6 +21,7 @@ type NodeFactory struct {
 	NodeExecutablePathProvider commandline.ExecutablePathProvider
 }
 
+
 // NewNode creates and returns a fully initialized instance of the DefaultTestNode.
 func (factory *NodeFactory) NewNode(config *cointest.TestNodeConfig) cointest.TestNode {
 	exec := factory.NodeExecutablePathProvider
@@ -27,6 +29,8 @@ func (factory *NodeFactory) NewNode(config *cointest.TestNodeConfig) cointest.Te
 	pin.AssertNotNil("NodeExecutablePathProvider", exec)
 	pin.AssertNotNil("WorkingDir", config.WorkingDir)
 	pin.AssertNotEmpty("WorkingDir", config.WorkingDir)
+
+	clientFac := &dcrregtest.DcrRPCClientFactory{}
 
 	node := &DefaultTestNode{
 		p2pAddress:                 net.JoinHostPort(config.P2PHost, strconv.Itoa(config.P2PPort)),
@@ -36,9 +40,10 @@ func (factory *NodeFactory) NewNode(config *cointest.TestNodeConfig) cointest.Te
 		appDir:                     filepath.Join(config.WorkingDir, "dcrd"),
 		endpoint:                   "ws",
 		externalProcess:            &commandline.ExternalProcess{CommandName: "dcrd"},
-		rPCClient:                  &cointest.RPCConnection{MaxConnRetries: 20},
+		rPCClient:                  &cointest.RPCConnection{MaxConnRetries: 20, RPCClientFactory: clientFac},
 		NodeExecutablePathProvider: exec,
 		network:                    config.ActiveNet,
+		RPCClientFactory:           clientFac,
 	}
 	return node
 }

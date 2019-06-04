@@ -12,6 +12,7 @@ import (
 	"github.com/decred/dcrd/hdkeychain"
 	"github.com/decred/dcrd/wire"
 	"github.com/jfixby/cointest"
+	"github.com/jfixby/dcrregtest"
 	"github.com/jfixby/pin"
 )
 
@@ -22,7 +23,7 @@ type WalletFactory struct {
 // NewWallet creates and returns a fully initialized instance of the InMemoryWallet.
 func (f *WalletFactory) NewWallet(cfg *cointest.TestWalletConfig) cointest.TestWallet {
 	pin.AssertNotNil("ActiveNet", cfg.ActiveNet)
-	w, e := newMemWallet(cfg.ActiveNet, cfg.Seed)
+	w, e := newMemWallet(cfg.ActiveNet.(*chaincfg.Params), cfg.Seed.([chainhash.HashSize + 4]byte))
 	pin.CheckTestSetupMalfunction(e)
 	return w
 }
@@ -53,6 +54,8 @@ func newMemWallet(net *chaincfg.Params, harnessHDSeed [chainhash.HashSize + 4]by
 	addrs := make(map[uint32]dcrutil.Address)
 	addrs[0] = coinbaseAddr
 
+	clientFac := &dcrregtest.DcrRPCClientFactory{}
+
 	return &InMemoryWallet{
 		net:               net,
 		coinbaseKey:       coinbaseKey,
@@ -63,5 +66,6 @@ func newMemWallet(net *chaincfg.Params, harnessHDSeed [chainhash.HashSize + 4]by
 		utxos:             make(map[wire.OutPoint]*utxo),
 		chainUpdateSignal: make(chan string),
 		reorgJournal:      make(map[int64]*undoEntry),
+		RPCClientFactory:           clientFac,
 	}, nil
 }
