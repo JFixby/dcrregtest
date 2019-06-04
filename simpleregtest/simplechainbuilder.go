@@ -7,6 +7,7 @@ package simpleregtest
 
 import (
 	"fmt"
+	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/cointest"
 	"github.com/jfixby/pin"
 	"strconv"
@@ -63,7 +64,7 @@ func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *cointest.Har
 	{
 		if testSetup.NumMatureOutputs > 0 {
 			numToGenerate := uint32(testSetup.ActiveNet.CoinbaseMaturity) + testSetup.NumMatureOutputs
-			err := generateTestChain(numToGenerate, h.NodeRPCClient())
+			err := generateTestChain(numToGenerate, h.NodeRPCClient().(*rpcclient.Client))
 			pin.CheckTestSetupMalfunction(err)
 		}
 		// wait for the WalletTestServer to sync up to the current height
