@@ -7,7 +7,7 @@ package simpleregtest
 
 import (
 	"fmt"
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"github.com/jfixby/pin"
 	"strconv"
 	"strings"
@@ -21,7 +21,7 @@ import (
 // 3. builds a new chain with the target number of mature outputs
 // receiving the mining reward to the test wallet
 // 4. syncs wallet to the tip of the chain
-func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *harness.Harness) {
+func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *cointest.Harness) {
 	pin.AssertNotEmpty("harness name", h.Name)
 	fmt.Println("Deploying Harness[" + h.Name + "]")
 
@@ -81,11 +81,11 @@ type launchArguments struct {
 }
 
 // launchHarnessSequence
-func launchHarnessSequence(h *harness.Harness, args *launchArguments) {
+func launchHarnessSequence(h *cointest.Harness, args *launchArguments) {
 	node := h.Node
 	wallet := h.Wallet
 
-	nodeLaunchArguments := &harness.TestNodeStartArgs{
+	nodeLaunchArguments := &cointest.TestNodeStartArgs{
 		DebugOutput:    args.DebugNodeOutput,
 		MiningAddress:  h.MiningAddress,
 		ExtraArguments: args.NodeExtraArguments,
@@ -94,7 +94,7 @@ func launchHarnessSequence(h *harness.Harness, args *launchArguments) {
 
 	rpcConfig := node.RPCConnectionConfig()
 
-	walletLaunchArguments := &harness.TestWalletStartArgs{
+	walletLaunchArguments := &cointest.TestWalletStartArgs{
 		NodeRPCCertFile:          node.CertFile(),
 		DebugWalletOutput:        args.DebugWalletOutput,
 		MaxSecondsToWaitOnLaunch: 90,
@@ -105,7 +105,7 @@ func launchHarnessSequence(h *harness.Harness, args *launchArguments) {
 }
 
 // shutdownHarnessSequence reverses the launchHarnessSequence
-func shutdownHarnessSequence(harness *harness.Harness) {
+func shutdownHarnessSequence(harness *cointest.Harness) {
 	harness.Wallet.Stop()
 	harness.Node.Stop()
 }

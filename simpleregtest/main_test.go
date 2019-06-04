@@ -7,16 +7,16 @@ package simpleregtest
 
 import (
 	"flag"
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"github.com/jfixby/pin"
 	"os"
 	"testing"
 )
 
 // ObtainHarness manages access to the Pool for test cases
-func ObtainHarness(tag string) *harness.Harness {
+func ObtainHarness(tag string) *cointest.Harness {
 	s := testSetup.harnessPool.ObtainSpawnableConcurrentSafe(tag)
-	return s.(*harness.Harness)
+	return s.(*cointest.Harness)
 }
 
 var testSetup *SimpleTestSetup

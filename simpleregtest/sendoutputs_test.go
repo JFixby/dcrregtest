@@ -6,7 +6,7 @@
 package simpleregtest
 
 import (
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"testing"
 
 	"github.com/decred/dcrd/chaincfg/chainhash"
@@ -15,9 +15,9 @@ import (
 	"github.com/decred/dcrd/wire"
 )
 
-func genSpend(t *testing.T, r *harness.Harness, amt dcrutil.Amount) *chainhash.Hash {
+func genSpend(t *testing.T, r *cointest.Harness, amt dcrutil.Amount) *chainhash.Hash {
 	// Grab a fresh address from the wallet.
-	addr, err := r.Wallet.NewAddress(&harness.NewAddressArgs{"default"})
+	addr, err := r.Wallet.NewAddress(&cointest.NewAddressArgs{"default"})
 	if err != nil {
 		t.Fatalf("unable to get new address: %v", err)
 	}
@@ -36,7 +36,7 @@ func genSpend(t *testing.T, r *harness.Harness, amt dcrutil.Amount) *chainhash.H
 	return txid
 }
 
-func assertTxMined(t *testing.T, r *harness.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
+func assertTxMined(t *testing.T, r *cointest.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
 	block, err := r.NodeRPCClient().GetBlock(blockHash)
 	if err != nil {
 		t.Fatalf("unable to get block: %v", err)

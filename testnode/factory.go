@@ -6,7 +6,7 @@
 package testnode
 
 import (
-	harness2 "github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"net"
@@ -21,7 +21,7 @@ type NodeFactory struct {
 }
 
 // NewNode creates and returns a fully initialized instance of the DefaultTestNode.
-func (factory *NodeFactory) NewNode(config *harness2.TestNodeConfig) harness2.TestNode {
+func (factory *NodeFactory) NewNode(config *cointest.TestNodeConfig) cointest.TestNode {
 	exec := factory.NodeExecutablePathProvider
 
 	pin.AssertNotNil("NodeExecutablePathProvider", exec)
@@ -36,7 +36,7 @@ func (factory *NodeFactory) NewNode(config *harness2.TestNodeConfig) harness2.Te
 		appDir:                     filepath.Join(config.WorkingDir, "dcrd"),
 		endpoint:                   "ws",
 		externalProcess:            &commandline.ExternalProcess{CommandName: "dcrd"},
-		rPCClient:                  &harness2.RPCConnection{MaxConnRetries: 20},
+		rPCClient:                  &cointest.RPCConnection{MaxConnRetries: 20},
 		NodeExecutablePathProvider: exec,
 		network:                    config.ActiveNet,
 	}

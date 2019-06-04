@@ -6,7 +6,7 @@
 package simpleregtest
 
 import (
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"testing"
 
 	"github.com/decred/dcrd/dcrutil"
@@ -21,7 +21,7 @@ func TestMemWalletReorg(t *testing.T) {
 
 	// Create a fresh h, we'll be using the main h to force a
 	// re-org on this local h.
-	h := testSetup.Regnet5.NewInstance(t.Name() + ".4").(*harness.Harness)
+	h := testSetup.Regnet5.NewInstance(t.Name() + ".4").(*cointest.Harness)
 	defer testSetup.Regnet5.Dispose(h)
 	h.Wallet.Sync()
 
@@ -37,7 +37,7 @@ func TestMemWalletReorg(t *testing.T) {
 	if err := ConnectNode(h, r); err != nil {
 		t.Fatalf("unable to connect harnesses: %v", err)
 	}
-	nodeSlice := []*harness.Harness{r, h}
+	nodeSlice := []*cointest.Harness{r, h}
 	if err := JoinNodes(nodeSlice, Blocks); err != nil {
 		t.Fatalf("unable to join node on blocks: %v", err)
 	}

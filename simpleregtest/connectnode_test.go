@@ -6,7 +6,7 @@
 package simpleregtest
 
 import (
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"testing"
 
 )
@@ -19,7 +19,7 @@ func TestConnectNode(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 
 	// Create a fresh test harness.
-	harness := testSetup.Regnet0.NewInstance(t.Name()).(*harness.Harness)
+	harness := testSetup.Regnet0.NewInstance(t.Name()).(*cointest.Harness)
 	defer testSetup.Regnet0.Dispose(harness)
 
 	// Establish a p2p connection from our new local harness to the main

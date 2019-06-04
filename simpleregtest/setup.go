@@ -7,9 +7,9 @@ package simpleregtest
 
 import (
 	"fmt"
-	harness2 "github.com/jfixby/decred-regression-testing/harness"
-	"github.com/jfixby/decred-regression-testing/memwallet"
-	"github.com/jfixby/decred-regression-testing/testnode"
+	"github.com/jfixby/cointest"
+	"github.com/jfixby/dcrregtest/memwallet"
+	"github.com/jfixby/dcrregtest/testnode"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"
@@ -59,16 +59,13 @@ type SimpleTestSetup struct {
 	Simnet0 *ChainWithMatureOutputsSpawner
 
 	// NodeFactory produces a new TestNode instance upon request
-	NodeFactory harness2.TestNodeFactory
+	NodeFactory cointest.TestNodeFactory
 
 	// WalletFactory produces a new TestWallet instance upon request
-	WalletFactory harness2.TestWalletFactory
+	WalletFactory cointest.TestWalletFactory
 
 	// WorkingDir defines test setup working dir
 	WorkingDir *pin.TempDirHandler
-
-	// nodeGoBuilder builds test node Go-code for the tests
-	nodeGoBuilder *gobuilder.GoBuider
 }
 
 // TearDown all harnesses in test Pool.
@@ -76,7 +73,7 @@ type SimpleTestSetup struct {
 // and shutting down any created processes.
 func (setup *SimpleTestSetup) TearDown() {
 	setup.harnessPool.DisposeAll()
-	setup.nodeGoBuilder.Dispose()
+	//setup.nodeGoBuilder.Dispose()
 	setup.WorkingDir.Dispose()
 }
 
@@ -88,14 +85,16 @@ func Setup() *SimpleTestSetup {
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	buildName := "dcrd"
-	nodeProjectGoPath := findDCRDProjectPath()
+	dcrdEXE := commandline.ExplicitExecutablePathString{PathString: "../../../decred/dcrd/dcrd.exe"}
 
-	setup.nodeGoBuilder = setupBuild(buildName, setup.WorkingDir.Path(), nodeProjectGoPath)
+	//buildName := "dcrd"
+	//nodeProjectGoPath := findDCRDProjectPath()
+
+	//setup.nodeGoBuilder = setupBuild(buildName, setup.WorkingDir.Path(), nodeProjectGoPath)
 	setup.NodeFactory = &testnode.NodeFactory{
-		NodeExecutablePathProvider: setup.nodeGoBuilder,
+		NodeExecutablePathProvider: &dcrdEXE,
 	}
-	setup.nodeGoBuilder.Build()
+	//setup.nodeGoBuilder.Build()
 
 	portManager := &LazyPortManager{
 		BasePort: 20000,

@@ -6,7 +6,7 @@
 package simpleregtest
 
 import (
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"testing"
 
 	"github.com/decred/dcrd/dcrutil"
@@ -34,7 +34,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	}
 	outputAmt := dcrutil.Amount(50 * dcrutil.AtomsPerCoin)
 	output := wire.NewTxOut(int64(outputAmt), pkScript)
-	ctargs := &harness.CreateTransactionArgs{
+	ctargs := &cointest.CreateTransactionArgs{
 		Outputs: []*wire.TxOut{output},
 		FeeRate: 10,
 	}

@@ -8,7 +8,7 @@ package memwallet
 import (
 	"bytes"
 	"fmt"
-	"github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"github.com/jfixby/pin"
 	"sync"
 	"time"
@@ -75,7 +75,7 @@ func (wallet *InMemoryWallet) Network() *chaincfg.Params {
 }
 
 // Start wallet process
-func (wallet *InMemoryWallet) Start(args *harness.TestWalletStartArgs) error {
+func (wallet *InMemoryWallet) Start(args *cointest.TestWalletStartArgs) error {
 	handlers := &rpcclient.NotificationHandlers{}
 
 	// If a handler for the OnBlockConnected/OnBlockDisconnected callback
@@ -104,7 +104,7 @@ func (wallet *InMemoryWallet) Start(args *harness.TestWalletStartArgs) error {
 
 	//handlers.OnClientConnected = wallet.onDcrdConnect
 
-	wallet.nodeRPC = harness.NewRPCConnection(args.NodeRPCConfig, 5, handlers)
+	wallet.nodeRPC = cointest.NewRPCConnection(args.NodeRPCConfig, 5, handlers)
 	pin.AssertNotNil("nodeRPC", wallet.nodeRPC)
 
 	// Filter transactions that pay to the coinbase associated with the
@@ -392,7 +392,7 @@ func (wallet *InMemoryWallet) newAddress() (dcrutil.Address, error) {
 // NewAddress returns a fresh address spendable by the wallet.
 //
 // This function is safe for concurrent access.
-func (wallet *InMemoryWallet) NewAddress(_ *harness.NewAddressArgs) (dcrutil.Address, error) {
+func (wallet *InMemoryWallet) NewAddress(_ *cointest.NewAddressArgs) (dcrutil.Address, error) {
 	wallet.Lock()
 	defer wallet.Unlock()
 
@@ -473,7 +473,7 @@ func (wallet *InMemoryWallet) fundTx(tx *wire.MsgTx, amt dcrutil.Amount, feeRate
 // in satoshis-per-byte.
 func (wallet *InMemoryWallet) SendOutputs(outputs []*wire.TxOut,
 	feeRate dcrutil.Amount) (*chainhash.Hash, error) {
-	args := &harness.CreateTransactionArgs{
+	args := &cointest.CreateTransactionArgs{
 		Outputs: outputs,
 		FeeRate: feeRate,
 	}
@@ -490,7 +490,7 @@ func (wallet *InMemoryWallet) SendOutputs(outputs []*wire.TxOut,
 // output. The passed fee rate should be expressed in sat/b.
 func (wallet *InMemoryWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 	feeRate dcrutil.Amount) (*chainhash.Hash, error) {
-	args := &harness.CreateTransactionArgs{
+	args := &cointest.CreateTransactionArgs{
 		Outputs: outputs,
 		FeeRate: feeRate,
 	}
@@ -508,7 +508,7 @@ func (wallet *InMemoryWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 // include a change output indicated by the change boolean.
 //
 // This function is safe for concurrent access.
-func (wallet *InMemoryWallet) CreateTransaction(args *harness.CreateTransactionArgs) (*wire.MsgTx, error) {
+func (wallet *InMemoryWallet) CreateTransaction(args *cointest.CreateTransactionArgs) (*wire.MsgTx, error) {
 
 	wallet.Lock()
 	defer wallet.Unlock()

@@ -8,7 +8,6 @@ package simpleregtest
 import (
 	"fmt"
 	"github.com/jfixby/cointest"
-	"github.com/jfixby/decred-regression-testing/harness"
 	"github.com/jfixby/pin"
 	"path/filepath"
 
@@ -32,8 +31,8 @@ type ChainWithMatureOutputsSpawner struct {
 	// NumMatureOutputs sets requirement for the generated test chain
 	NumMatureOutputs uint32
 
-	NodeFactory   harness.TestNodeFactory
-	WalletFactory harness.TestWalletFactory
+	NodeFactory   cointest.TestNodeFactory
+	WalletFactory cointest.TestWalletFactory
 
 	ActiveNet *chaincfg.Params
 
@@ -69,7 +68,7 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 
 	localhost := "127.0.0.1"
 
-	nodeConfig := &harness.TestNodeConfig{
+	nodeConfig := &cointest.TestNodeConfig{
 		P2PHost: localhost,
 		P2PPort: p2p,
 
@@ -81,14 +80,14 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 		WorkingDir: harnessFolder,
 	}
 
-	walletConfig := &harness.TestWalletConfig{
-		Seed:          harness.NewTestSeed(seedSalt),
+	walletConfig := &cointest.TestWalletConfig{
+		Seed:          cointest.NewTestSeed(seedSalt),
 		WalletRPCHost: localhost,
 		WalletRPCPort: walletRPC,
 		ActiveNet:     testSetup.ActiveNet,
 	}
 
-	harness := &harness.Harness{
+	harness := &cointest.Harness{
 		Name:       harnessName,
 		Node:       testSetup.NodeFactory.NewNode(nodeConfig),
 		Wallet:     testSetup.WalletFactory.NewWallet(walletConfig),
@@ -111,7 +110,7 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 // Dispose harness. This includes removing
 // all temporary directories, and shutting down any created processes.
 func (testSetup *ChainWithMatureOutputsSpawner) Dispose(s pin.Spawnable) error {
-	h := s.(*harness.Harness)
+	h := s.(*cointest.Harness)
 	if h == nil {
 		return nil
 	}

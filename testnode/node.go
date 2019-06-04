@@ -7,7 +7,7 @@ package testnode
 
 import (
 	"fmt"
-	harness2 "github.com/jfixby/decred-regression-testing/harness"
+	"github.com/jfixby/cointest"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"io/ioutil"
@@ -36,7 +36,7 @@ type DefaultTestNode struct {
 
 	externalProcess *commandline.ExternalProcess
 
-	rPCClient *harness2.RPCConnection
+	rPCClient *cointest.RPCConnection
 
 	miningAddress dcrutil.Address
 
@@ -73,7 +73,7 @@ func (node *DefaultTestNode) P2PAddress() string {
 }
 
 // RPCClient returns node RPCConnection
-func (node *DefaultTestNode) RPCClient() *harness2.RPCConnection {
+func (node *DefaultTestNode) RPCClient() *cointest.RPCConnection {
 	return node.rPCClient
 }
 
@@ -99,7 +99,7 @@ func (node *DefaultTestNode) IsRunning() bool {
 
 // Start node process. Deploys working dir, launches dcrd using command-line,
 // connects RPC client to the node.
-func (node *DefaultTestNode) Start(args *harness2.TestNodeStartArgs) {
+func (node *DefaultTestNode) Start(args *cointest.TestNodeStartArgs) {
 	if node.IsRunning() {
 		pin.ReportTestSetupMalfunction(fmt.Errorf("DefaultTestNode is already running"))
 	}
