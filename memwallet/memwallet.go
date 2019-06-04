@@ -472,13 +472,12 @@ func (wallet *InMemoryWallet) fundTx(tx *wire.MsgTx, amt dcrutil.Amount, feeRate
 // SendOutputs creates, then sends a transaction paying to the specified output
 // while observing the passed fee rate. The passed fee rate should be expressed
 // in satoshis-per-byte.
-func (wallet *InMemoryWallet) SendOutputs(outputs []*wire.TxOut,
-	feeRate dcrutil.Amount) (*chainhash.Hash, error) {
-	args := &cointest.CreateTransactionArgs{
-		Outputs: outputs,
-		FeeRate: feeRate,
+func (wallet *InMemoryWallet) SendOutputs(args cointest.SendOutputsArgs) (cointest.SentOutputsHash, error) {
+	arg2 := &cointest.CreateTransactionArgs{
+		Outputs: args.Outputs,
+		FeeRate: args.FeeRate,
 	}
-	tx, err := wallet.CreateTransaction(args)
+	tx, err := wallet.CreateTransaction(arg2)
 	if err != nil {
 		return nil, err
 	}
@@ -491,8 +490,16 @@ func (wallet *InMemoryWallet) SendOutputs(outputs []*wire.TxOut,
 // output. The passed fee rate should be expressed in sat/b.
 func (wallet *InMemoryWallet) SendOutputsWithoutChange(outputs []*wire.TxOut,
 	feeRate dcrutil.Amount) (*chainhash.Hash, error) {
+
+	//cast list
+	b := make([]cointest.OutputTx, len(outputs))
+	{
+		for i := range outputs {
+			b[i] = outputs[i]
+		}
+	}
 	args := &cointest.CreateTransactionArgs{
-		Outputs: outputs,
+		Outputs: b,
 		FeeRate: feeRate,
 	}
 	tx, err := wallet.CreateTransaction(args)
@@ -573,12 +580,12 @@ func (wallet *InMemoryWallet) CreateTransaction(args *cointest.CreateTransaction
 // being selected to fund a transaction via the CreateTransaction method.
 //
 // This function is safe for concurrent access.
-func (wallet *InMemoryWallet) UnlockOutputs(inputs []*wire.TxIn) {
+func (wallet *InMemoryWallet) UnlockOutputs(inputs []cointest.InputTx) {
 	wallet.Lock()
 	defer wallet.Unlock()
 
 	for _, input := range inputs {
-		utxo, ok := wallet.utxos[input.PreviousOutPoint]
+		utxo, ok := wallet.utxos[input.(*wire.TxIn).PreviousOutPoint]
 		if !ok {
 			continue
 		}
