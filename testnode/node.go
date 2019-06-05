@@ -107,8 +107,9 @@ func (node *DefaultTestNode) Start(args *cointest.TestNodeStartArgs) {
 	fmt.Println("Start node process...")
 	pin.MakeDirs(node.appDir)
 
-	node.miningAddress = args.MiningAddress.(dcrutil.Address)
-
+	if args.MiningAddress != nil {
+		node.miningAddress = args.MiningAddress.(dcrutil.Address)
+	}
 	exec := node.NodeExecutablePathProvider.Executable()
 	node.externalProcess.CommandName = exec
 	node.externalProcess.Arguments = commandline.ArgumentsToStringArray(
