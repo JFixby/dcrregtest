@@ -106,16 +106,17 @@ func TestJoinMempools(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
+
 	output := wire.NewTxOut(5e8, addrScript)
 	ctargs := &cointest.CreateTransactionArgs{
-		Outputs: []*wire.TxOut{output},
+		Outputs: []cointest.OutputTx{output},
 		FeeRate: 10,
 	}
 	testTx, err := r.Wallet.CreateTransaction(ctargs)
 	if err != nil {
 		t.Fatalf("coinbase spend failed: %v", err)
 	}
-	if _, err := r.NodeRPCClient().(*rpcclient.Client).SendRawTransaction(testTx, true); err != nil {
+	if _, err := r.NodeRPCClient().(*rpcclient.Client).SendRawTransaction(testTx.(*wire.MsgTx), true); err != nil {
 		t.Fatalf("send transaction failed: %v", err)
 	}
 
@@ -167,7 +168,7 @@ func TestJoinMempools(t *testing.T) {
 
 	// Send the transaction to the local harness which will result in synced
 	// mempools.
-	if _, err := h.NodeRPCClient().(*rpcclient.Client).SendRawTransaction(testTx, true); err != nil {
+	if _, err := h.NodeRPCClient().(*rpcclient.Client).SendRawTransaction(testTx.(*wire.MsgTx), true); err != nil {
 		t.Fatalf("send transaction failed: %v", err)
 	}
 
