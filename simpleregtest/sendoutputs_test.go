@@ -30,11 +30,15 @@ func genSpend(t *testing.T, r *cointest.Harness, amt dcrutil.Amount) *chainhash.
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
 	output := wire.NewTxOut(int64(amt), addrScript)
-	txid, err := r.Wallet.SendOutputs([]*wire.TxOut{output}, 10)
+	arg := cointest.SendOutputsArgs{
+		Outputs: []cointest.OutputTx{output},
+		FeeRate: 10,
+	}
+	txid, err := r.Wallet.SendOutputs(arg)
 	if err != nil {
 		t.Fatalf("coinbase spend failed: %v", err)
 	}
-	return txid
+	return txid.(*chainhash.Hash)
 }
 
 func assertTxMined(t *testing.T, r *cointest.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
