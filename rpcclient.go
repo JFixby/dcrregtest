@@ -14,5 +14,10 @@ type DcrRPCClientFactory struct {
 }
 
 func (f *DcrRPCClientFactory) NewRPCConnection(config cointest.RPCConnectionConfig, handlers cointest.RPCClientNotificationHandlers) (cointest.RPCClient, error) {
-	return rpcclient.New(config.(*rpcclient.ConnConfig), handlers.(*rpcclient.NotificationHandlers))
+	var h *rpcclient.NotificationHandlers
+	if handlers != nil {
+		h = handlers.
+		(*rpcclient.NotificationHandlers)
+	}
+	return rpcclient.New(config.(*rpcclient.ConnConfig), h)
 }
