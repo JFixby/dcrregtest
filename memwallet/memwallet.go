@@ -532,7 +532,7 @@ func (wallet *InMemoryWallet) CreateTransaction(args *cointest.CreateTransaction
 	}
 
 	// Attempt to fund the transaction with spendable utxos.
-	if err := wallet.fundTx(tx, outputAmt, args.FeeRate.(dcrutil.Amount)); err != nil {
+	if err := wallet.fundTx(tx, outputAmt, dcrutil.Amount(args.FeeRate.(int))); err != nil {
 		return nil, err
 	}
 
