@@ -35,7 +35,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	outputAmt := dcrutil.Amount(50 * dcrutil.AtomsPerCoin)
 	output := wire.NewTxOut(int64(outputAmt), pkScript)
 	ctargs := &cointest.CreateTransactionArgs{
-		Outputs: []*wire.TxOut{output},
+		Outputs: []cointest.OutputTx{output},
 		FeeRate: 10,
 	}
 	tx, err := r.Wallet.CreateTransaction(ctargs)
@@ -54,7 +54,12 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	// Now unlocked all the spent inputs within the unbroadcast signed
 	// transaction. The current balance should now be exactly that of the
 	// starting balance.
-	r.Wallet.UnlockOutputs(tx.TxIn)
+	txin := tx.(*wire.MsgTx).TxIn
+	inpts := make([]cointest.InputTx, len(txin))
+	for i, j := range txin {
+		inpts[i] = j
+	}
+	r.Wallet.UnlockOutputs(inpts)
 	currentBalance = r.Wallet.ConfirmedBalance().(dcrutil.Amount)
 	if currentBalance != startingBalance {
 		t.Fatalf("current and starting balance should now match: "+
