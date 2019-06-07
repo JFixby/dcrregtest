@@ -1,4 +1,4 @@
-package simpleregtest
+package dcrregtest
 
 import (
 	"github.com/jfixby/cointest"

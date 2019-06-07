@@ -13,7 +13,7 @@ require (
 	github.com/decred/dcrd/txscript v1.0.2
 	github.com/decred/dcrd/wire v1.2.0
 	github.com/jfixby/cointest v0.0.0-20190607163526-35ab121e8b01
-	github.com/jfixby/dcrtest v0.0.0-20190607164910-be1b25bd55dd
+	github.com/jfixby/dcrtest v0.0.0-20190607165326-817cddb6908f
 	github.com/jfixby/pin v0.0.0-20190604132358-d174b38abe5c
 	github.com/picfight/pfcd_builder v0.0.0-20190316212115-c65045308bbd
 )
