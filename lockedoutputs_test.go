@@ -6,7 +6,7 @@
 package dcrregtest
 
 import (
-	"github.com/jfixby/cointest"
+	"github.com/jfixby/coinharness"
 	"testing"
 
 	"github.com/decred/dcrd/dcrutil"
@@ -34,8 +34,8 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	}
 	outputAmt := dcrutil.Amount(50 * dcrutil.AtomsPerCoin)
 	output := wire.NewTxOut(int64(outputAmt), pkScript)
-	ctargs := &cointest.CreateTransactionArgs{
-		Outputs: []cointest.OutputTx{output},
+	ctargs := &coinharness.CreateTransactionArgs{
+		Outputs: []coinharness.OutputTx{output},
 		FeeRate: 10,
 	}
 	tx, err := r.Wallet.CreateTransaction(ctargs)
@@ -55,7 +55,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	// transaction. The current balance should now be exactly that of the
 	// starting balance.
 	txin := tx.(*wire.MsgTx).TxIn
-	inpts := make([]cointest.InputTx, len(txin))
+	inpts := make([]coinharness.InputTx, len(txin))
 	for i, j := range txin {
 		inpts[i] = j
 	}

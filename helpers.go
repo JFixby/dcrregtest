@@ -7,7 +7,7 @@ package dcrregtest
 
 import (
 	"fmt"
-	"github.com/jfixby/cointest"
+	"github.com/jfixby/coinharness"
 	"github.com/jfixby/pin"
 	"reflect"
 	"strconv"
@@ -39,7 +39,7 @@ const (
 // passed JoinType. This function be used to to ensure all active test
 // harnesses are at a consistent state before proceeding to an assertion or
 // check within rpc tests.
-func JoinNodes(nodes []*cointest.Harness, joinType JoinType) error {
+func JoinNodes(nodes []*coinharness.Harness, joinType JoinType) error {
 	switch joinType {
 	case Blocks:
 		return syncBlocks(nodes)
@@ -50,7 +50,7 @@ func JoinNodes(nodes []*cointest.Harness, joinType JoinType) error {
 }
 
 // syncMempools blocks until all nodes have identical mempools.
-func syncMempools(nodes []*cointest.Harness) error {
+func syncMempools(nodes []*coinharness.Harness) error {
 	poolsMatch := false
 
 	for !poolsMatch {
@@ -82,7 +82,7 @@ func syncMempools(nodes []*cointest.Harness) error {
 }
 
 // syncBlocks blocks until all nodes report the same block height.
-func syncBlocks(nodes []*cointest.Harness) error {
+func syncBlocks(nodes []*coinharness.Harness) error {
 	blocksMatch := false
 
 	for !blocksMatch {
@@ -112,7 +112,7 @@ func syncBlocks(nodes []*cointest.Harness) error {
 // harness and the "to" harness.  The connection made is flagged as persistent,
 // therefore in the case of disconnects, "from" will attempt to reestablish a
 // connection to the "to" harness.
-func ConnectNode(from *cointest.Harness, to *cointest.Harness) error {
+func ConnectNode(from *coinharness.Harness, to *coinharness.Harness) error {
 	peerInfo, err := from.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func generateTestChain(numToGenerate uint32, node *rpcclient.Client) error {
 	return nil
 }
 
-func assertConnectedTo(t *testing.T, nodeA *cointest.Harness, nodeB *cointest.Harness) {
+func assertConnectedTo(t *testing.T, nodeA *coinharness.Harness, nodeB *coinharness.Harness) {
 	nodeAPeers, err := nodeA.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
 	if err != nil {
 		t.Fatalf("unable to get nodeA's peer info")

@@ -7,9 +7,9 @@ package dcrregtest
 
 import (
 	"fmt"
-	"github.com/jfixby/cointest"
-	"github.com/jfixby/dcrtest/memwallet"
-	"github.com/jfixby/dcrtest/nodecls"
+	"github.com/jfixby/coinharness"
+	"github.com/jfixby/dcrharness/memwallet"
+	"github.com/jfixby/dcrharness/nodecls"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"
@@ -59,10 +59,10 @@ type SimpleTestSetup struct {
 	Simnet0 *ChainWithMatureOutputsSpawner
 
 	// ConsoleNodeFactory produces a new TestNode instance upon request
-	NodeFactory cointest.TestNodeFactory
+	NodeFactory coinharness.TestNodeFactory
 
 	// WalletFactory produces a new TestWallet instance upon request
-	WalletFactory cointest.TestWalletFactory
+	WalletFactory coinharness.TestWalletFactory
 
 	// WorkingDir defines test setup working dir
 	WorkingDir *pin.TempDirHandler

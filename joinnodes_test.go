@@ -8,7 +8,7 @@ package dcrregtest
 import (
 	"github.com/decred/dcrd/dcrutil"
 	"github.com/decred/dcrd/rpcclient"
-	"github.com/jfixby/cointest"
+	"github.com/jfixby/coinharness"
 	"testing"
 	"time"
 
@@ -26,10 +26,10 @@ func TestJoinBlocks(t *testing.T) {
 
 	// Create a second harness with only the genesis block so it is behind
 	// the main harness.
-	h := testSetup.Regnet0.NewInstance("checkJoinBlocks").(*cointest.Harness)
+	h := testSetup.Regnet0.NewInstance("checkJoinBlocks").(*coinharness.Harness)
 	defer testSetup.Regnet0.Dispose(h)
 
-	nodeSlice := []*cointest.Harness{r, h}
+	nodeSlice := []*coinharness.Harness{r, h}
 	blocksSynced := make(chan struct{})
 	go func() {
 		if err := JoinNodes(nodeSlice, Blocks); err != nil {
@@ -85,10 +85,10 @@ func TestJoinMempools(t *testing.T) {
 	// will be synced below so the same transaction can be sent to both
 	// nodes without it being an orphan.
 	// Create a fresh test harness.
-	h := testSetup.Regnet0.NewInstance("checkJoinMempools").(*cointest.Harness)
+	h := testSetup.Regnet0.NewInstance("checkJoinMempools").(*coinharness.Harness)
 	defer testSetup.Regnet0.Dispose(h)
 
-	nodeSlice := []*cointest.Harness{r, h}
+	nodeSlice := []*coinharness.Harness{r, h}
 
 	// Both mempools should be considered synced as they are empty.
 	// Therefore, this should return instantly.
@@ -108,8 +108,8 @@ func TestJoinMempools(t *testing.T) {
 	}
 
 	output := wire.NewTxOut(5e8, addrScript)
-	ctargs := &cointest.CreateTransactionArgs{
-		Outputs: []cointest.OutputTx{output},
+	ctargs := &coinharness.CreateTransactionArgs{
+		Outputs: []coinharness.OutputTx{output},
 		FeeRate: 10,
 	}
 	testTx, err := r.Wallet.CreateTransaction(ctargs)

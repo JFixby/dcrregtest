@@ -1,7 +1,7 @@
 package dcrregtest
 
 import (
-	"github.com/jfixby/cointest"
+	"github.com/jfixby/coinharness"
 	"testing"
 )
 
@@ -13,7 +13,7 @@ func TestP2PConnect(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 
 	// Create a fresh test harness.
-	harness := testSetup.Regnet25.NewInstance("TestP2PConnect").(*cointest.Harness)
+	harness := testSetup.Regnet25.NewInstance("TestP2PConnect").(*coinharness.Harness)
 	defer testSetup.Regnet25.Dispose(harness)
 
 	// Establish a p2p connection from our new local harness to the main

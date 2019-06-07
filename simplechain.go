@@ -7,8 +7,8 @@ package dcrregtest
 
 import (
 	"fmt"
-	"github.com/jfixby/cointest"
-	"github.com/jfixby/dcrtest"
+	"github.com/jfixby/coinharness"
+	"github.com/jfixby/dcrharness"
 	"github.com/jfixby/pin"
 	"path/filepath"
 
@@ -32,12 +32,12 @@ type ChainWithMatureOutputsSpawner struct {
 	// NumMatureOutputs sets requirement for the generated test chain
 	NumMatureOutputs uint32
 
-	NodeFactory   cointest.TestNodeFactory
-	WalletFactory cointest.TestWalletFactory
+	NodeFactory   coinharness.TestNodeFactory
+	WalletFactory coinharness.TestWalletFactory
 
 	ActiveNet *chaincfg.Params
 
-	NetPortManager cointest.NetPortManager
+	NetPortManager coinharness.NetPortManager
 
 	NodeStartExtraArguments   map[string]interface{}
 	WalletStartExtraArguments map[string]interface{}
@@ -69,7 +69,7 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 
 	localhost := "127.0.0.1"
 
-	nodeConfig := &cointest.TestNodeConfig{
+	nodeConfig := &coinharness.TestNodeConfig{
 		P2PHost: localhost,
 		P2PPort: p2p,
 
@@ -81,14 +81,14 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 		WorkingDir: harnessFolder,
 	}
 
-	walletConfig := &cointest.TestWalletConfig{
-		Seed:          dcrtest.NewTestSeed(seedSalt),
+	walletConfig := &coinharness.TestWalletConfig{
+		Seed:          dcrharness.NewTestSeed(seedSalt),
 		WalletRPCHost: localhost,
 		WalletRPCPort: walletRPC,
 		ActiveNet:     testSetup.ActiveNet,
 	}
 
-	harness := &cointest.Harness{
+	harness := &coinharness.Harness{
 		Name:       harnessName,
 		Node:       testSetup.NodeFactory.NewNode(nodeConfig),
 		Wallet:     testSetup.WalletFactory.NewWallet(walletConfig),
@@ -111,7 +111,7 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 // Dispose harness. This includes removing
 // all temporary directories, and shutting down any created processes.
 func (testSetup *ChainWithMatureOutputsSpawner) Dispose(s pin.Spawnable) error {
-	h := s.(*cointest.Harness)
+	h := s.(*coinharness.Harness)
 	if h == nil {
 		return nil
 	}

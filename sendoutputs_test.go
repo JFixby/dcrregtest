@@ -7,7 +7,7 @@ package dcrregtest
 
 import (
 	"github.com/decred/dcrd/rpcclient"
-	"github.com/jfixby/cointest"
+	"github.com/jfixby/coinharness"
 	"testing"
 
 	"github.com/decred/dcrd/chaincfg/chainhash"
@@ -16,9 +16,9 @@ import (
 	"github.com/decred/dcrd/wire"
 )
 
-func genSpend(t *testing.T, r *cointest.Harness, amt dcrutil.Amount) *chainhash.Hash {
+func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainhash.Hash {
 	// Grab a fresh address from the wallet.
-	addr, err := r.Wallet.NewAddress(&cointest.NewAddressArgs{"default"})
+	addr, err := r.Wallet.NewAddress(&coinharness.NewAddressArgs{"default"})
 	if err != nil {
 		t.Fatalf("unable to get new address: %v", err)
 	}
@@ -30,8 +30,8 @@ func genSpend(t *testing.T, r *cointest.Harness, amt dcrutil.Amount) *chainhash.
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
 	output := wire.NewTxOut(int64(amt), addrScript)
-	arg := cointest.SendOutputsArgs{
-		Outputs: []cointest.OutputTx{output},
+	arg := coinharness.SendOutputsArgs{
+		Outputs: []coinharness.OutputTx{output},
 		FeeRate: 10,
 	}
 	txid, err := r.Wallet.SendOutputs(arg)
@@ -41,7 +41,7 @@ func genSpend(t *testing.T, r *cointest.Harness, amt dcrutil.Amount) *chainhash.
 	return txid.(*chainhash.Hash)
 }
 
-func assertTxMined(t *testing.T, r *cointest.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
+func assertTxMined(t *testing.T, r *coinharness.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
 	block, err := r.NodeRPCClient().(*rpcclient.Client).GetBlock(blockHash)
 	if err != nil {
 		t.Fatalf("unable to get block: %v", err)
