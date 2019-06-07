@@ -8,7 +8,7 @@ package testnode
 import (
 	"github.com/jfixby/cointest"
 	"github.com/jfixby/dcrregtest"
-	"github.com/jfixby/dcrregtest/consolenode"
+	"github.com/jfixby/cointest/consolenode"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"path/filepath"
