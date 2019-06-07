@@ -3,12 +3,11 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package simpleregtest
+package dcrregtest
 
 import (
 	"fmt"
 	"github.com/jfixby/cointest"
-	"github.com/jfixby/dcrregtest"
 	"github.com/jfixby/pin"
 	"path/filepath"
 
@@ -82,7 +81,7 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 	}
 
 	walletConfig := &cointest.TestWalletConfig{
-		Seed:          dcrregtest.NewTestSeed(seedSalt),
+		Seed:          NewTestSeed(seedSalt),
 		WalletRPCHost: localhost,
 		WalletRPCPort: walletRPC,
 		ActiveNet:     testSetup.ActiveNet,

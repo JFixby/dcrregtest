@@ -3,14 +3,13 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package simpleregtest
+package dcrregtest
 
 import (
 	"fmt"
 	"github.com/jfixby/cointest"
-	"github.com/jfixby/dcrregtest/consolenode"
-	"github.com/jfixby/dcrregtest/memwallet"
-	"github.com/jfixby/dcrregtest/nodecls"
+	"github.com/jfixby/dcrtest/memwallet"
+	"github.com/jfixby/dcrtest/nodecls"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"

@@ -60,10 +60,10 @@ github.com/gorilla/websocket v1.2.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoA
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
-github.com/jfixby/cointest v0.0.0-20190607134611-f62d9f203868 h1:3ByB/zobh7J2AUpzN2+TeJUZtyuHb+ZFZiexNwL9pSc=
-github.com/jfixby/cointest v0.0.0-20190607134611-f62d9f203868/go.mod h1:WBAoXJhjRYKO1a/yv0ibx0fS+Y8m0LhAINQiAGQtpz0=
 github.com/jfixby/cointest v0.0.0-20190607163526-35ab121e8b01 h1:p6KIkFxejACFyngFsqT+EZvf1piIfqDk2wHA0qpDzp4=
 github.com/jfixby/cointest v0.0.0-20190607163526-35ab121e8b01/go.mod h1:WBAoXJhjRYKO1a/yv0ibx0fS+Y8m0LhAINQiAGQtpz0=
+github.com/jfixby/dcrtest v0.0.0-20190607164910-be1b25bd55dd h1:uwhF15yFwK7GhnVt1aocRz3mQPXmnfwVxR8KaPzuq0w=
+github.com/jfixby/dcrtest v0.0.0-20190607164910-be1b25bd55dd/go.mod h1:F52Wx33oC6b9VTyQ4nZNQsRdDbE1TxTUjPgAFdhLDPg=
 github.com/jfixby/pin v0.0.0-20190604132358-d174b38abe5c h1:CkNhDtxdLvI+VyDS1ZLE9M9jGz2wwa0yP5FHw9Z+n/k=
 github.com/jfixby/pin v0.0.0-20190604132358-d174b38abe5c/go.mod h1:fcyyZW36sY5GM2qsX/sewjJu7y5ngGKoELUbDEccDqY=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
