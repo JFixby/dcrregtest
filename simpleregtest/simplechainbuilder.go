@@ -86,12 +86,11 @@ func launchHarnessSequence(h *cointest.Harness, args *launchArguments) {
 	node := h.Node
 	wallet := h.Wallet
 
-	nodeLaunchArguments := &cointest.TestNodeStartArgs{
-		DebugOutput:    args.DebugNodeOutput,
-		MiningAddress:  h.MiningAddress,
-		ExtraArguments: args.NodeExtraArguments,
-	}
-	node.Start(nodeLaunchArguments)
+	node.SetDebugNodeOutput(args.DebugNodeOutput)
+	node.SetMiningAddress(h.MiningAddress)
+	node.SetExtraArguments(args.NodeExtraArguments)
+
+	node.Start()
 
 	rpcConfig := node.RPCConnectionConfig()
 
