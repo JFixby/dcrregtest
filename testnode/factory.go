@@ -8,42 +8,38 @@ package testnode
 import (
 	"github.com/jfixby/cointest"
 	"github.com/jfixby/dcrregtest"
+	"github.com/jfixby/dcrregtest/consolenode"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
-	"net"
 	"path/filepath"
-	"strconv"
 )
 
-// NodeFactory produces a new DefaultTestNode-instance upon request
+// NodeFactory produces a new ConsoleNode-instance upon request
 type NodeFactory struct {
 	// NodeExecutablePathProvider returns path to the dcrd executable
 	NodeExecutablePathProvider commandline.ExecutablePathProvider
+	ConsoleCommandCook         DcrdConsoleCommandCook
+	RPCClientFactory           dcrregtest.DcrRPCClientFactory
 }
 
-
-// NewNode creates and returns a fully initialized instance of the DefaultTestNode.
+// NewNode creates and returns a fully initialized instance of the ConsoleNode.
 func (factory *NodeFactory) NewNode(config *cointest.TestNodeConfig) cointest.TestNode {
-	exec := factory.NodeExecutablePathProvider
-
-	pin.AssertNotNil("NodeExecutablePathProvider", exec)
 	pin.AssertNotNil("WorkingDir", config.WorkingDir)
 	pin.AssertNotEmpty("WorkingDir", config.WorkingDir)
 
-	clientFac := &dcrregtest.DcrRPCClientFactory{}
-
-	node := &DefaultTestNode{
-		p2pAddress:                 net.JoinHostPort(config.P2PHost, strconv.Itoa(config.P2PPort)),
-		rpcListen:                  net.JoinHostPort(config.NodeRPCHost, strconv.Itoa(config.NodeRPCPort)),
-		rpcUser:                    "user",
-		rpcPass:                    "pass",
-		appDir:                     filepath.Join(config.WorkingDir, "dcrd"),
-		endpoint:                   "ws",
-		externalProcess:            &commandline.ExternalProcess{CommandName: "dcrd"},
-		rPCClient:                  &cointest.RPCConnection{MaxConnRetries: 20, RPCClientFactory: clientFac},
-		NodeExecutablePathProvider: exec,
-		network:                    config.ActiveNet,
-		RPCClientFactory:           clientFac,
+	args := &consolenode.NewConsoleNodeArgs{
+		ClientFac:                  &factory.RPCClientFactory,
+		ConsoleCommandCook:         &factory.ConsoleCommandCook,
+		NodeExecutablePathProvider: factory.NodeExecutablePathProvider,
+		RpcUser:                    "user",
+		RpcPass:                    "pass",
+		AppDir:                     filepath.Join(config.WorkingDir, "dcrd"),
+		P2PHost:                    config.P2PHost,
+		P2PPort:                    config.P2PPort,
+		NodeRPCHost:                config.NodeRPCHost,
+		NodeRPCPort:                config.NodeRPCPort,
+		ActiveNet:                  config.ActiveNet,
 	}
-	return node
+
+	return consolenode.NewConsoleNode(args)
 }

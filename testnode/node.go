@@ -1,182 +1,39 @@
-// Copyright (c) 2018 The btcsuite developers
-// Copyright (c) 2018 The Decred developers
-// Use of this source code is governed by an ISC
-// license that can be found in the LICENSE file.
-
 package testnode
 
 import (
 	"fmt"
+	"github.com/decred/dcrd/chaincfg"
 	"github.com/jfixby/cointest"
+	"github.com/jfixby/dcrregtest/consolenode"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
-	"io/ioutil"
-	"path/filepath"
-
-	"github.com/decred/dcrd/chaincfg"
-	"github.com/decred/dcrd/dcrutil"
-	"github.com/decred/dcrd/rpcclient"
 )
 
-// DefaultTestNode launches a new dcrd instance using command-line call.
-// Implements harness.TestNode.
-type DefaultTestNode struct {
-	// NodeExecutablePathProvider returns path to the dcrd executable
-	NodeExecutablePathProvider commandline.ExecutablePathProvider
-
-	rpcUser    string
-	rpcPass    string
-	p2pAddress string
-	rpcListen  string
-	rpcConnect string
-	profile    string
-	debugLevel string
-	appDir     string
-	endpoint   string
-
-	externalProcess *commandline.ExternalProcess
-
-	rPCClient *cointest.RPCConnection
-
-	miningAddress dcrutil.Address
-
-	network          cointest.Network
-	RPCClientFactory cointest.RPCClientFactory
-}
-
-// RPCConnectionConfig produces a new connection config instance for RPC client
-func (node *DefaultTestNode) RPCConnectionConfig() cointest.RPCConnectionConfig {
-	file := node.CertFile()
-	fmt.Println("reading: " + file)
-	cert, err := ioutil.ReadFile(file)
-	pin.CheckTestSetupMalfunction(err)
-
-	return &rpcclient.ConnConfig{
-		Host:                 node.rpcListen,
-		Endpoint:             node.endpoint,
-		User:                 node.rpcUser,
-		Pass:                 node.rpcPass,
-		Certificates:         cert,
-		DisableAutoReconnect: true,
-		HTTPPostMode:         false,
-	}
-}
-
-// FullConsoleCommand returns the full console command used to
-// launch external process of the node
-func (node *DefaultTestNode) FullConsoleCommand() string {
-	return node.externalProcess.FullConsoleCommand()
-}
-
-// P2PAddress returns node p2p address
-func (node *DefaultTestNode) P2PAddress() string {
-	return node.p2pAddress
-}
-
-// RPCClient returns node RPCConnection
-func (node *DefaultTestNode) RPCClient() *cointest.RPCConnection {
-	return node.rPCClient
-}
-
-// CertFile returns file path of the .cert-file of the node
-func (node *DefaultTestNode) CertFile() string {
-	return filepath.Join(node.appDir, "rpc.cert")
-}
-
-// KeyFile returns file path of the .key-file of the node
-func (node *DefaultTestNode) KeyFile() string {
-	return filepath.Join(node.appDir, "rpc.key")
-}
-
-// Network returns current network of the node
-func (node *DefaultTestNode) Network() cointest.Network {
-	return node.network
-}
-
-// IsRunning returns true if DefaultTestNode is running external dcrd process
-func (node *DefaultTestNode) IsRunning() bool {
-	return node.externalProcess.IsRunning()
-}
-
-// Start node process. Deploys working dir, launches dcrd using command-line,
-// connects RPC client to the node.
-func (node *DefaultTestNode) Start(args *cointest.TestNodeStartArgs) {
-	if node.IsRunning() {
-		pin.ReportTestSetupMalfunction(fmt.Errorf("DefaultTestNode is already running"))
-	}
-	fmt.Println("Start node process...")
-	pin.MakeDirs(node.appDir)
-
-	if args.MiningAddress != nil {
-		node.miningAddress = args.MiningAddress.(dcrutil.Address)
-	}
-	exec := node.NodeExecutablePathProvider.Executable()
-	node.externalProcess.CommandName = exec
-	node.externalProcess.Arguments = commandline.ArgumentsToStringArray(
-		node.cookArguments(args.ExtraArguments),
-	)
-	node.externalProcess.Launch(args.DebugOutput)
-	// Node RPC instance will create a cert file when it is ready for incoming calls
-	pin.WaitForFile(node.CertFile(), 7)
-
-	fmt.Println("Connect to node RPC...")
-	cfg := node.RPCConnectionConfig()
-	node.rPCClient.Connect(cfg, nil)
-	fmt.Println("node RPC client connected.")
-}
-
-// Stop interrupts the running node process.
-// Disconnects RPC client from the node, removes cert-files produced by the dcrd,
-// stops dcrd process.
-func (node *DefaultTestNode) Stop() {
-	if !node.IsRunning() {
-		pin.ReportTestSetupMalfunction(fmt.Errorf("node is not running"))
-	}
-
-	if node.rPCClient.IsConnected() {
-		fmt.Println("Disconnect from node RPC...")
-		node.rPCClient.Disconnect()
-	}
-
-	fmt.Println("Stop node process...")
-	err := node.externalProcess.Stop()
-	pin.CheckTestSetupMalfunction(err)
-
-	// Delete files, RPC servers will recreate them on the next launch sequence
-	pin.DeleteFile(node.CertFile())
-	pin.DeleteFile(node.KeyFile())
-}
-
-// Dispose simply stops the node process if running
-func (node *DefaultTestNode) Dispose() error {
-	if node.IsRunning() {
-		node.Stop()
-	}
-	return nil
+type DcrdConsoleCommandCook struct {
 }
 
 // cookArguments prepares arguments for the command-line call
-func (node *DefaultTestNode) cookArguments(extraArguments map[string]interface{}) map[string]interface{} {
+func (cook *DcrdConsoleCommandCook) CookArguments(par *consolenode.ConsoleCommandParams) map[string]interface{} {
 	result := make(map[string]interface{})
 
 	result["txindex"] = commandline.NoArgumentValue
 	result["addrindex"] = commandline.NoArgumentValue
-	result["rpcuser"] = node.rpcUser
-	result["rpcpass"] = node.rpcPass
-	result["rpcconnect"] = node.rpcConnect
-	result["rpclisten"] = node.rpcListen
-	result["listen"] = node.p2pAddress
-	result["datadir"] = node.appDir
-	result["debuglevel"] = node.debugLevel
-	result["profile"] = node.profile
-	result["rpccert"] = node.CertFile()
-	result["rpckey"] = node.KeyFile()
-	if node.miningAddress != nil {
-		result["miningaddr"] = node.miningAddress.String()
+	result["rpcuser"] = par.RpcUser
+	result["rpcpass"] = par.RpcPass
+	result["rpcconnect"] = par.RpcConnect
+	result["rpclisten"] = par.RpcListen
+	result["listen"] = par.P2pAddress
+	result["datadir"] = par.AppDir
+	result["debuglevel"] = par.DebugLevel
+	result["profile"] = par.Profile
+	result["rpccert"] = par.CertFile
+	result["rpckey"] = par.KeyFile
+	if par.MiningAddress != nil {
+		result["miningaddr"] = par.MiningAddress.String()
 	}
-	result[networkFor(node.network)] = commandline.NoArgumentValue
+	result[networkFor(par.Network)] = commandline.NoArgumentValue
 
-	commandline.ArgumentsCopyTo(extraArguments, result)
+	commandline.ArgumentsCopyTo(par.ExtraArguments, result)
 	return result
 }
 
