@@ -23,7 +23,7 @@ Subpackages:
  provides a default test node that launches a new
  `dcrd`-instance using command-line call.
 
- - [simpleregtest](https://github.com/decred/dcrd/tree/master/integration/harness/simpleregtest)
+ - [dcrregtest](https://github.com/decred/dcrd/tree/master/integration/harness/dcrregtest)
  harbours a pre-configured test setup and unit tests to run RPC-driven node tests.
 
  ## License

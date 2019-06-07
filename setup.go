@@ -85,7 +85,7 @@ func Setup() *SimpleTestSetup {
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	dcrdEXE := &commandline.ExplicitExecutablePathString{PathString: "../../../decred/dcrd/dcrd.exe"}
+	dcrdEXE := &commandline.ExplicitExecutablePathString{PathString: "../../decred/dcrd/dcrd.exe"}
 
 	//buildName := "dcrd"
 	//nodeProjectGoPath := findDCRDProjectPath()
@@ -184,7 +184,7 @@ func Setup() *SimpleTestSetup {
 }
 
 func findDCRDProjectPath() string {
-	path := fileops.Abs("../../../decred/dcrd")
+	path := fileops.Abs("../../decred/dcrd")
 	pin.D("path", path)
 	return path
 }
