@@ -6,8 +6,11 @@
 package dcrregtest
 
 import (
+	"fmt"
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/cointest"
+	"github.com/jfixby/pin"
+	"io/ioutil"
 )
 
 type DcrRPCClientFactory struct {
@@ -19,5 +22,21 @@ func (f *DcrRPCClientFactory) NewRPCConnection(config cointest.RPCConnectionConf
 		h = handlers.
 		(*rpcclient.NotificationHandlers)
 	}
-	return rpcclient.New(config.(*rpcclient.ConnConfig), h)
+
+	file := config.CertificateFile
+	fmt.Println("reading: " + file)
+	cert, err := ioutil.ReadFile(file)
+	pin.CheckTestSetupMalfunction(err)
+
+	cfg := &rpcclient.ConnConfig{
+		Host:                 config.Host,
+		Endpoint:             config.Endpoint,
+		User:                 config.User,
+		Pass:                 config.Pass,
+		Certificates:         cert,
+		DisableAutoReconnect: true,
+		HTTPPostMode:         false,
+	}
+
+	return rpcclient.New(cfg, h)
 }
