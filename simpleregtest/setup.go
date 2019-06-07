@@ -8,8 +8,9 @@ package simpleregtest
 import (
 	"fmt"
 	"github.com/jfixby/cointest"
+	"github.com/jfixby/dcrregtest/consolenode"
 	"github.com/jfixby/dcrregtest/memwallet"
-	"github.com/jfixby/dcrregtest/testnode"
+	"github.com/jfixby/dcrregtest/nodecls"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"
@@ -58,7 +59,7 @@ type SimpleTestSetup struct {
 	// with only the genesis block.
 	Simnet0 *ChainWithMatureOutputsSpawner
 
-	// NodeFactory produces a new TestNode instance upon request
+	// ConsoleNodeFactory produces a new TestNode instance upon request
 	NodeFactory cointest.TestNodeFactory
 
 	// WalletFactory produces a new TestWallet instance upon request
@@ -91,7 +92,7 @@ func Setup() *SimpleTestSetup {
 	//nodeProjectGoPath := findDCRDProjectPath()
 
 	//setup.nodeGoBuilder = setupBuild(buildName, setup.WorkingDir.Path(), nodeProjectGoPath)
-	setup.NodeFactory = &testnode.NodeFactory{
+	setup.NodeFactory = &nodecls.ConsoleNodeFactory{
 		NodeExecutablePathProvider: dcrdEXE,
 	}
 	//setup.nodeGoBuilder.Build()

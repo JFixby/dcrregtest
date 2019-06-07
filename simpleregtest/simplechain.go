@@ -52,7 +52,7 @@ type ChainWithMatureOutputsSpawner struct {
 //      balance.
 func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) pin.Spawnable {
 	harnessFolderName := "harness-" + harnessName
-	pin.AssertNotNil("NodeFactory", testSetup.NodeFactory)
+	pin.AssertNotNil("ConsoleNodeFactory", testSetup.NodeFactory)
 	pin.AssertNotNil("ActiveNet", testSetup.ActiveNet)
 	pin.AssertNotNil("WalletFactory", testSetup.WalletFactory)
 
