@@ -19,5 +19,6 @@ cache:
     - ~/.cache
 
 script:
+  - sudo apt-get update && apt-get upgrade -y && apt-get install -y rsync
   - ls
   - ./run_tests.sh docker
