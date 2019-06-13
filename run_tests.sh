@@ -40,8 +40,9 @@ testrepo () {
 
   # binary needed for RPC tests
   env CC=gcc $GO build
+  ls
   cp "$REPO" "$GOPATH/bin/"
-
+  ls
   # run tests on all modules
   ROOTPATH=$($GO list -m -f {{.Dir}} 2>/dev/null)
   ROOTPATHPATTERN=$(echo $ROOTPATH | sed 's/\\/\\\\/g' | sed 's/\//\\\//g')
@@ -98,5 +99,7 @@ fi
 $DOCKER run --rm -it -v $(pwd):/src:Z picfight/$DOCKER_IMAGE_TAG /bin/bash -c "\
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
+  ls && \
   cd github.com/jfixby/$REPO/ && \
+  ls && \
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
