@@ -78,6 +78,7 @@ DOCKER_IMAGE_TAG=picfight-golang-builder-$GOVERSION
 $DOCKER pull picfight/$DOCKER_IMAGE_TAG
 
 $DOCKER run --rm -it -v $(pwd):/src:Z picfight/$DOCKER_IMAGE_TAG /bin/bash -c "\
+  ls && \
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
