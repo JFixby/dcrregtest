@@ -30,7 +30,7 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainha
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
 	output := wire.NewTxOut(int64(amt), addrScript)
-	arg := coinharness.SendOutputsArgs{
+	arg := &coinharness.SendOutputsArgs{
 		Outputs: []coinharness.OutputTx{output},
 		FeeRate: 10,
 	}
