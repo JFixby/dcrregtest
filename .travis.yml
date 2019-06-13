@@ -6,11 +6,12 @@ sudo: required
 services:
   - docker
 
-before_install:
-  - chmod +x ./run_tests.sh
-
 env:
   - GOVERSION=1.11
+  - GOVERSION=1.12
+
+before_install:
+  - chmod +x ./run_tests.sh
 
 install: true
 
@@ -20,7 +21,4 @@ cache:
 
 script:
   - rsync --version
-  - sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get install -y rsync
-  - rsync --version
-  - ls
   - ./run_tests.sh docker
