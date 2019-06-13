@@ -79,7 +79,5 @@ $DOCKER pull picfight/$DOCKER_IMAGE_TAG
 
 $DOCKER run --rm -it -v $(pwd):/src:Z picfight/$DOCKER_IMAGE_TAG /bin/bash -c "\
   rsync -ra --filter=':- .gitignore'  \
-  rsync --version \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
-  ls \
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
