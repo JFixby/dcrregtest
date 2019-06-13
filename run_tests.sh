@@ -28,7 +28,7 @@ set -ex
 
 # Default GOVERSION
 [[ ! "$GOVERSION" ]] && GOVERSION=1.11
-REPO=pfcd
+REPO=dcrregtest
 
 testrepo () {
   GO=go
