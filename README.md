@@ -1,4 +1,4 @@
-Decred regressions testing
+Decred regression testing
 =======
 [![Build Status](http://img.shields.io/travis/jfixby/dcrregtest.svg)](https://travis-ci.org/jfixby/dcrregtest)
 [![ISC License](http://img.shields.io/badge/license-ISC-blue.svg)](http://copyfree.org)
