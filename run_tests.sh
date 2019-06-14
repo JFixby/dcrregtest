@@ -63,7 +63,7 @@ if [ ! "$DOCKER" ]; then
 fi
 
 # use Travis cache with docker
-DOCKER_IMAGE_TAG=jfixby-golang-builder-$GOVERSION
+DOCKER_IMAGE_TAG=dcrd-golang-builder-$GOVERSION
 $DOCKER pull jfixby/$DOCKER_IMAGE_TAG
 
 $DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
