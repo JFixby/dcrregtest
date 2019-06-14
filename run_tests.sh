@@ -40,7 +40,7 @@ testrepo () {
   # binary needed for RPC tests
   env CC=gcc $GO build
   # cp "$REPO" "$GOPATH/bin/"
-  $GO find ./...
+  $GO get ./...
   dir ../
   dir ../../
   dir ../../../

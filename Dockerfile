@@ -8,7 +8,7 @@ RUN dir
 RUN dir ../
 RUN dir ../../
 RUN dir ../../../
-RUN env GO111MODULE=on go find ./...
+RUN env GO111MODULE=on go get ./...
 RUN dir
 RUN dir ../
 RUN dir ../../
