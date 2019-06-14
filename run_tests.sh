@@ -84,10 +84,7 @@ $DOCKER pull jfixby/$DOCKER_IMAGE_TAG
 $DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
-  dir /go/src/github.com/jfixby && \
   dir /go/src/github.com/ && \
-  dir /go/src/ && \
-  dir /go/ && \
-  dir ~ && \
-  dir $GO && \
+  dir /go/src/github.com/decred && \
+  dcrd --version && \
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
