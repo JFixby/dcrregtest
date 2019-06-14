@@ -41,6 +41,14 @@ testrepo () {
   env CC=gcc $GO build
   # cp "$REPO" "$GOPATH/bin/"
 
+   pushd $GO/ && \
+   ls && \
+   popd
+
+   pushd ../../decred/dcrd/ && \
+   ls && \
+   popd
+
   # run tests on all modules
   ROOTPATH=$($GO list -m -f {{.Dir}} 2>/dev/null)
   ROOTPATHPATTERN=$(echo $ROOTPATH | sed 's/\\/\\\\/g' | sed 's/\//\\\//g')
@@ -81,5 +89,14 @@ $DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
   ls && \
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
+  ls /go/src/github.com/jfixby/ && \
+  ls /go/src/github.com/ && \
+  ls /go/src/ && \
+  ls /go/ && \
+  ls ~ && \
+  ls $GO
   ls && \
+  pushd ../../decred/dcrd/ && \
+  ls && \
+  popd
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
