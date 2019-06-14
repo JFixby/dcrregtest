@@ -39,11 +39,6 @@ testrepo () {
 
   # binary needed for RPC tests
   env CC=gcc $GO build
-  # cp "$REPO" "$GOPATH/bin/"
-  $GO get ./...
-  dir ../
-  dir ../../
-  dir ../../../
 
   # run tests on all modules
   ROOTPATH=$($GO list -m -f {{.Dir}} 2>/dev/null)
@@ -53,17 +48,7 @@ testrepo () {
   MODPATHS=". $MODPATHS"
   for module in $MODPATHS; do
     echo "==> ${module}"
-    env GORACE='halt_on_error=1' CC=gcc $GO test -short -race \
-      -tags rpctest ./${module}/...
-
-    # check linters
-    golangci-lint run --build-tags rpctest --disable-all --deadline=10m \
-      --enable=gofmt \
-      --enable=gosimple \
-      --enable=unconvert \
-      --enable=ineffassign \
-      --enable=govet \
-      --enable=misspell ./${module}/...
+    env GORACE='halt_on_error=1' CC=gcc $GO test ./${module}/...
   done
 
   echo "------------------------------------------"
@@ -84,7 +69,5 @@ $DOCKER pull jfixby/$DOCKER_IMAGE_TAG
 $DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
-  dir /go/src/github.com/ && \
-  dir /go/src/github.com/decred && \
   dcrd --version && \
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
