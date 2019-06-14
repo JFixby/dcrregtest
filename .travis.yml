@@ -19,5 +19,4 @@ cache:
     - ~/.cache
 
 script:
-  - rsync --version
   - ./run_tests.sh docker
