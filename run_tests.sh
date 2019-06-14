@@ -84,7 +84,7 @@ $DOCKER pull jfixby/$DOCKER_IMAGE_TAG
 $DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
-  pushd /go/src/github.com/jfixby/ && \
+  dir /go/src/github.com/jfixby && \
   dir /go/src/github.com/ && \
   dir /go/src/ && \
   dir /go/ && \

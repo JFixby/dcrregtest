@@ -7,6 +7,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y rsync
 RUN dir
 RUN dir ../
 RUN dir ../../
-RUN env GO111MODULE=on go build ./...
+RUN env GO111MODULE=on go find ./...
 
 CMD [ "dcrregtest" ]
