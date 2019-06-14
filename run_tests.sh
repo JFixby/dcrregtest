@@ -81,6 +81,5 @@ $DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
   ls && \
   rsync -ra --filter=':- .gitignore'  \
   /src/ /go/src/github.com/jfixby/$REPO/ && \
-  cd /go/github.com/jfixby/$REPO/ && \
   ls && \
   env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
