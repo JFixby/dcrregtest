@@ -8,5 +8,8 @@ RUN dir
 RUN dir ../
 RUN dir ../../
 RUN env GO111MODULE=on go find ./...
+RUN dir
+RUN dir ../
+RUN dir ../../
 
 CMD [ "dcrregtest" ]
