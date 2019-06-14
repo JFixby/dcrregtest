@@ -85,7 +85,7 @@ func Setup() *SimpleTestSetup {
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	dcrdEXE := &commandline.ExplicitExecutablePathString{PathString: "../../decred/dcrd/dcrd.exe"}
+	dcrdEXE := &commandline.ExplicitExecutablePathString{PathString: "dcrd"}
 
 	//buildName := "dcrd"
 	//nodeProjectGoPath := findDCRDProjectPath()
