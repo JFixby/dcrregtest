@@ -39,7 +39,7 @@ testrepo () {
 
   # binary needed for RPC tests
   env CC=gcc $GO build
-  cp "$REPO" "$GOPATH/bin/"
+  # cp "$REPO" "$GOPATH/bin/"
 
   # run tests on all modules
   ROOTPATH=$($GO list -m -f {{.Dir}} 2>/dev/null)
