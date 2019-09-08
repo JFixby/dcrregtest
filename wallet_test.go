@@ -1,14 +1,16 @@
-package pfcregtest
+package dcrregtest
 
 import (
 	"encoding/hex"
+	"github.com/decred/dcrd/chaincfg"
+	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrd/dcrjson"
-	"github.com/picfight/pfcd/chaincfg"
-	"github.com/picfight/pfcd/chaincfg/chainhash"
-	"github.com/picfight/pfcd/rpcclient"
-	"github.com/picfight/pfcd/txscript"
-	"github.com/picfight/pfcd/wire"
-	"github.com/picfight/pfcutil"
+	"github.com/decred/dcrd/dcrutil"
+	"github.com/decred/dcrd/rpcclient"
+	"github.com/decred/dcrd/txscript"
+	"github.com/decred/dcrd/wire"
+	"github.com/decred/dcrwallet/wallet"
+	"github.com/jfixby/coinharness"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -109,7 +111,7 @@ func TestGetNewAddress(t *testing.T) {
 	numOfReusages := 3
 	addrCounter := make(map[string]int)
 	for i := 0; i < wallet.DefaultGapLimit*numOfReusages; i++ {
-		addr, err = wcl.GetNewAddressGapPolicy(
+		addr, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 			"default", rpcclient.GapPolicyWrap)
 
 		// count address
@@ -147,7 +149,7 @@ func TestGetNewAddress(t *testing.T) {
 
 	// ignore gap policy
 	for i := 0; i < wallet.DefaultGapLimit*2; i++ {
-		addr, err = wcl.GetNewAddressGapPolicy(
+		addr, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 			"default", rpcclient.GapPolicyIgnore)
 		if err != nil {
 			t.Fatal(err)
@@ -185,7 +187,7 @@ func TestValidateAddress(t *testing.T) {
 	//-----------------------------------------
 	addrStr := "SsqvxBX8MZC5iiKCgBscwt69jg4u4hHhDKU"
 	// Try to validate an address that is not owned by wallet
-	otherAddress, err := pfcutil.DecodeAddress(addrStr)
+	otherAddress, err := dcrutil.DecodeAddress(addrStr)
 	if err != nil {
 		t.Fatalf("Unable to decode address %v: %v", otherAddress, err)
 	}
@@ -214,7 +216,7 @@ func TestValidateAddress(t *testing.T) {
 	}
 	devSubAddrStr := addrs[0].String()
 
-	DevAddr, err := pfcutil.DecodeAddress(devSubAddrStr)
+	DevAddr, err := dcrutil.DecodeAddress(devSubAddrStr)
 	if err != nil {
 		t.Fatalf("Unable to decode address %s: %v", devSubAddrStr, err)
 	}
@@ -234,7 +236,7 @@ func TestValidateAddress(t *testing.T) {
 		// let's overflow DefaultGapLimit
 		for i := 0; i < wallet.DefaultGapLimit+5; i++ {
 			// Get a new address from current account
-			addr, err := wcl.GetNewAddressGapPolicy(
+			addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 				acct, rpcclient.GapPolicyIgnore)
 			if err != nil {
 				t.Fatal(err)
@@ -293,7 +295,7 @@ func TestValidateAddress(t *testing.T) {
 				)
 			}
 			// Decode address
-			_, err = pfcutil.DecodeAddress(addrStr)
+			_, err = dcrutil.DecodeAddress(addrStr)
 			if err != nil {
 				t.Fatalf("Unable to decode address[%d] %s: %v for <%s>",
 					i,
@@ -318,19 +320,19 @@ func TestWalletPassphrase(t *testing.T) {
 	// Remember to leave the wallet unlocked for any subsequent tests
 	defaultWalletPassphrase := "password"
 	defer func() {
-		if err := wcl.WalletPassphrase(defaultWalletPassphrase, 0); err != nil {
+		if err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0); err != nil {
 			t.Fatal("Unable to unlock wallet:", err)
 		}
 	}()
 
 	// Lock the wallet since test wallet is unlocked by default
-	err := wcl.WalletLock()
+	err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletLock()
 	if err != nil {
 		t.Fatal("Unable to lock wallet.")
 	}
 
 	// Check that wallet is locked
-	walletInfo, err := wcl.WalletInfo()
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
@@ -339,7 +341,7 @@ func TestWalletPassphrase(t *testing.T) {
 	}
 
 	// Try incorrect password
-	err = wcl.WalletPassphrase("Wrong Password", 0)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase("Wrong Password", 0)
 	// Check for "-14: invalid passphrase for master private key"
 	if err != nil && err.(*dcrjson.RPCError).Code !=
 		dcrjson.ErrRPCWalletPassphraseIncorrect {
@@ -349,7 +351,7 @@ func TestWalletPassphrase(t *testing.T) {
 	}
 
 	// Check that wallet is still locked
-	walletInfo, err = wcl.WalletInfo()
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
@@ -371,13 +373,13 @@ func TestWalletPassphrase(t *testing.T) {
 	}
 
 	// Unlock with correct passphrase
-	err = wcl.WalletPassphrase(defaultWalletPassphrase, 0)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
 	if err != nil {
 		t.Fatalf("WalletPassphrase failed: %v", err)
 	}
 
 	// Check that wallet is now unlocked
-	walletInfo, err = wcl.WalletInfo()
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
@@ -386,7 +388,7 @@ func TestWalletPassphrase(t *testing.T) {
 	}
 
 	// Check for ErrRPCWalletAlreadyUnlocked
-	err = wcl.WalletPassphrase(defaultWalletPassphrase, 0)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
 	// Check for "-17: Wallet is already unlocked"
 	if err != nil && err.(*dcrjson.RPCError).Code !=
 		dcrjson.ErrRPCWalletAlreadyUnlocked {
@@ -394,20 +396,20 @@ func TestWalletPassphrase(t *testing.T) {
 	}
 
 	// Re-lock wallet
-	err = wcl.WalletLock()
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletLock()
 	if err != nil {
 		t.Fatal("Unable to lock wallet.")
 	}
 
 	// Unlock with timeout
 	timeOut := int64(6)
-	err = wcl.WalletPassphrase(defaultWalletPassphrase, timeOut)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, timeOut)
 	if err != nil {
 		t.Fatalf("WalletPassphrase failed: %v", err)
 	}
 
 	// Check that wallet is now unlocked
-	walletInfo, err = wcl.WalletInfo()
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
@@ -418,7 +420,7 @@ func TestWalletPassphrase(t *testing.T) {
 	time.Sleep(time.Duration(timeOut+2) * time.Second)
 
 	// Check that wallet is now locked
-	walletInfo, err = wcl.WalletInfo()
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
@@ -443,29 +445,28 @@ func TestGetBalance(t *testing.T) {
 	}
 
 	// Grab a fresh address from the test account
-	addr, err := r.WalletRPCClient().
-		GetNewAddressGapPolicy(
-			accountName,
-			rpcclient.GapPolicyWrap,
-		)
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
+		accountName,
+		rpcclient.GapPolicyWrap,
+	)
 	if err != nil {
 		t.Fatalf("GetNewAddress failed: %v", err)
 	}
 
 	// Check invalid account name
-	_, err = wcl.GetBalanceMinConf("invalid account", 0)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("invalid account", 0)
 	// -4: account name 'invalid account' not found
 	if err == nil {
 		t.Fatalf("GetBalanceMinConfType failed to return non-nil error for invalid account name: %v", err)
 	}
 
 	// Check invalid minconf
-	_, err = wcl.GetBalanceMinConf("default", -1)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", -1)
 	if err == nil {
 		t.Fatalf("GetBalanceMinConf failed to return non-nil error for invalid minconf (-1)")
 	}
 
-	preBalances, err := wcl.GetBalanceMinConf("*", 0)
+	preBalances, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("*", 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf(\"*\", 0) failed: %v", err)
 	}
@@ -478,13 +479,13 @@ func TestGetBalance(t *testing.T) {
 	}
 
 	// Send from default to test account
-	sendAmount := pfcutil.Amount(700000000)
-	if _, err = wcl.SendFromMinConf("default", addr, sendAmount, 1); err != nil {
+	sendAmount := dcrutil.Amount(700000000)
+	if _, err = r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, sendAmount, 1); err != nil {
 		t.Fatalf("SendFromMinConf failed: %v", err)
 	}
 
 	// Check invalid minconf
-	postBalances, err := wcl.GetBalanceMinConf("*", 0)
+	postBalances, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("*", 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
@@ -522,7 +523,7 @@ func TestGetBalance(t *testing.T) {
 	}
 
 	// For GetBalance(), default minconf=1.
-	defaultBalanceMinConf1, err := wcl.GetBalanceMinConf("default", 1)
+	defaultBalanceMinConf1, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", 1)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConfType failed: %v", err)
 	}
@@ -536,7 +537,7 @@ func TestGetBalance(t *testing.T) {
 
 	// Verify minconf=1 balances of receiving account before/after new block
 	// Before, getbalance minconf=1
-	amtTestMinconf1BeforeBlock, err := wcl.GetBalanceMinConf(accountName, 1)
+	amtTestMinconf1BeforeBlock, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(accountName, 1)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
@@ -546,7 +547,7 @@ func TestGetBalance(t *testing.T) {
 	newBestBlock(r, t)
 
 	// After, getbalance minconf=1
-	amtTestMinconf1AfterBlock, err := wcl.GetBalanceMinConf(accountName, 1)
+	amtTestMinconf1AfterBlock, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(accountName, 1)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
@@ -568,7 +569,7 @@ func TestListAccounts(t *testing.T) {
 	wcl := r.Wallet
 
 	// Create a new account and verify that we can see it
-	listBeforeCreateAccount, err := wcl.ListAccounts()
+	listBeforeCreateAccount, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccounts()
 	if err != nil {
 		t.Fatal("Failed to create new account ", err)
 	}
@@ -581,7 +582,7 @@ func TestListAccounts(t *testing.T) {
 	}
 
 	// Account list after creating new
-	accountsBalancesDefault1, err := wcl.ListAccounts()
+	accountsBalancesDefault1, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccounts()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -607,7 +608,7 @@ func TestListAccounts(t *testing.T) {
 	}
 
 	// Grab a fresh address from the test account
-	addr, err := r.WalletRPCClient().GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		accountName,
 		rpcclient.GapPolicyWrap,
 	)
@@ -617,7 +618,7 @@ func TestListAccounts(t *testing.T) {
 
 	// For ListAccountsCmd: MinConf *int `jsonrpcdefault:"1"`
 	// Let's test that ListAccounts() is equivalent to explicit minconf=1
-	accountsBalancesMinconf1, err := wcl.ListAccountsMinConf(1)
+	accountsBalancesMinconf1, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccountsMinConf(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -628,7 +629,7 @@ func TestListAccounts(t *testing.T) {
 	}
 
 	// Get accounts with minconf=0 pre-send
-	accountsBalancesMinconf0PreSend, err := wcl.ListAccountsMinConf(0)
+	accountsBalancesMinconf0PreSend, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccountsMinConf(0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -637,13 +638,13 @@ func TestListAccounts(t *testing.T) {
 	acctBalancePreSend := accountsBalancesMinconf0PreSend[accountName]
 
 	// Send from default to test account
-	sendAmount := pfcutil.Amount(700000000)
-	if _, err = wcl.SendFromMinConf("default", addr, sendAmount, 1); err != nil {
+	sendAmount := dcrutil.Amount(700000000)
+	if _, err = r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, sendAmount, 1); err != nil {
 		t.Fatal("SendFromMinConf failed.", err)
 	}
 
 	// Get accounts with minconf=0 post-send
-	accountsBalancesMinconf0PostSend, err := wcl.ListAccountsMinConf(0)
+	accountsBalancesMinconf0PostSend, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccountsMinConf(0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -660,7 +661,7 @@ func TestListAccounts(t *testing.T) {
 	// Verify minconf>0 works: list, mine, list
 
 	// List BEFORE mining a block
-	accountsBalancesMinconf1PostSend, err := wcl.ListAccountsMinConf(1)
+	accountsBalancesMinconf1PostSend, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccountsMinConf(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -673,7 +674,7 @@ func TestListAccounts(t *testing.T) {
 	newBestBlock(r, t)
 
 	// List AFTER mining a block
-	accountsBalancesMinconf1PostMine, err := wcl.ListAccountsMinConf(1)
+	accountsBalancesMinconf1PostMine, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListAccountsMinConf(1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -693,7 +694,7 @@ func TestListAccounts(t *testing.T) {
 	// Also, I think there is the same bug that allows negative minconf values,
 	// but does not handle unconfirmed outputs the same way as minconf=0.
 
-	GetBalancePostSend, err := wcl.GetBalanceMinConf(accountName, 0)
+	GetBalancePostSend, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(accountName, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -727,7 +728,7 @@ func TestListUnspent(t *testing.T) {
 	}
 
 	// Grab an address from the test account
-	addr, err := wcl.GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		accountName,
 		rpcclient.GapPolicyWrap,
 	)
@@ -736,7 +737,7 @@ func TestListUnspent(t *testing.T) {
 	}
 
 	// UTXOs before send
-	list, err := wcl.ListUnspent()
+	list, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListUnspent()
 	if err != nil {
 		t.Fatalf("failed to get utxos")
 	}
@@ -754,7 +755,7 @@ func TestListUnspent(t *testing.T) {
 	// Check Min/Maxconf arguments
 	defaultMaxConf := 9999999
 
-	listMin1MaxBig, err := wcl.ListUnspentMinMax(1, defaultMaxConf)
+	listMin1MaxBig, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListUnspentMinMax(1, defaultMaxConf)
 	if err != nil {
 		t.Fatalf("failed to get utxos")
 	}
@@ -776,7 +777,7 @@ func TestListUnspent(t *testing.T) {
 	}
 
 	// List with all of the above address
-	listAddressesKnown, err := wcl.ListUnspentMinMaxAddresses(1, defaultMaxConf, addrs)
+	listAddressesKnown, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListUnspentMinMaxAddresses(1, defaultMaxConf, addrs)
 	if err != nil {
 		t.Fatalf("Failed to get utxos with addresses argument.")
 	}
@@ -807,8 +808,8 @@ func TestListUnspent(t *testing.T) {
 	}
 
 	// SendFromMinConf to addr
-	amountToSend := pfcutil.Amount(700000000)
-	txid, err := wcl.SendFromMinConf("default", addr, amountToSend, 0)
+	amountToSend := dcrutil.Amount(700000000)
+	txid, err := r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, amountToSend, 0)
 	if err != nil {
 		t.Fatalf("sendfromminconf failed: %v", err)
 	}
@@ -818,8 +819,8 @@ func TestListUnspent(t *testing.T) {
 	// New block is necessary for GetRawTransaction to give a tx with sensible
 	// MsgTx().TxIn[:].ValueIn values.
 
-	// Get *pfcutil.Tx of send to check the inputs
-	rawTx, err := r.DcrdRPCClient().GetRawTransaction(txid)
+	// Get *dcrutil.Tx of send to check the inputs
+	rawTx, err := r.NodeRPCClient().GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -829,7 +830,7 @@ func TestListUnspent(t *testing.T) {
 	for _, txIn := range rawTx.MsgTx().TxIn {
 		prevOut := &txIn.PreviousOutPoint
 		// Outpoint.String() appends :index to the hash
-		txInIDs[prevOut.String()] = pfcutil.Amount(txIn.ValueIn).ToCoin()
+		txInIDs[prevOut.String()] = dcrutil.Amount(txIn.ValueIn).ToCoin()
 	}
 
 	// First check to make sure we see these in the UTXO list prior to send,
@@ -872,20 +873,20 @@ func TestSendToAddress(t *testing.T) {
 	wcl := r.Wallet
 
 	// Grab a fresh address from the wallet.
-	addr, err := wcl.GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		"default", rpcclient.GapPolicyIgnore)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Check balance of default account
-	_, err = wcl.GetBalanceMinConf("default", 1)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", 1)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConfType failed: %v", err)
 	}
 
 	// SendToAddress
-	txid, err := wcl.SendToAddress(addr, 1000000)
+	txid, err := r.WalletRPCClient().Internal().(*rpcclient.Client).SendToAddress(addr, 1000000)
 	if err != nil {
 		t.Fatalf("SendToAddress failed: %v", err)
 	}
@@ -918,7 +919,7 @@ func TestSendToAddress(t *testing.T) {
 	// Check each PreviousOutPoint for the sending tx.
 	time.Sleep(1 * time.Second)
 	// Get the sending Tx
-	rawTx, err := wcl.GetRawTransaction(txid)
+	rawTx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("Unable to get raw transaction %v: %v", txid, err)
 	}
@@ -929,7 +930,7 @@ func TestSendToAddress(t *testing.T) {
 		prevOut := &txIn.PreviousOutPoint
 
 		// If a txout is spent (not in the UTXO set) GetTxOutResult will be nil
-		res, err := wcl.GetTxOut(&prevOut.Hash, prevOut.Index, false)
+		res, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetTxOut(&prevOut.Hash, prevOut.Index, false)
 		if err != nil {
 			t.Fatal("GetTxOut failure:", err)
 		}
@@ -944,13 +945,13 @@ func TestSendFrom(t *testing.T) {
 
 	r := ObtainHarness(mainHarnessName)
 	accountName := "sendFromTest"
-	err := r.WalletRPCClient().CreateNewAccount(accountName)
+	err := r.WalletRPCClient().Internal().(*rpcclient.Client).CreateNewAccount(accountName)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Grab a fresh address from the wallet.
-	addr, err := r.WalletRPCClient().GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		accountName,
 		rpcclient.GapPolicyWrap,
 	)
@@ -958,15 +959,15 @@ func TestSendFrom(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	amountToSend := pfcutil.Amount(1000000)
+	amountToSend := dcrutil.Amount(1000000)
 	// Check spendable balance of default account
-	defaultBalanceBeforeSend, err := r.WalletRPCClient().GetBalanceMinConf("default", 0)
+	defaultBalanceBeforeSend, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
 
 	// Get utxo list before send
-	list, err := r.WalletRPCClient().ListUnspent()
+	list, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListUnspent()
 	if err != nil {
 		t.Fatalf("failed to get utxos")
 	}
@@ -982,19 +983,19 @@ func TestSendFrom(t *testing.T) {
 	}
 
 	// SendFromMinConf 1000 to addr
-	txid, err := r.WalletRPCClient().SendFromMinConf("default", addr, amountToSend, 0)
+	txid, err :=r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, amountToSend, 0)
 	if err != nil {
 		t.Fatalf("sendfromminconf failed: %v", err)
 	}
 
 	// Check spendable balance of default account
-	defaultBalanceAfterSendNoBlock, err := r.WalletRPCClient().GetBalanceMinConf("default", 0)
+	defaultBalanceAfterSendNoBlock, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
 
 	// Check balance of sendfrom account
-	sendFromBalanceAfterSendNoBlock, err := r.WalletRPCClient().GetBalanceMinConf(accountName, 0)
+	sendFromBalanceAfterSendNoBlock, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(accountName, 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
@@ -1023,7 +1024,7 @@ func TestSendFrom(t *testing.T) {
 
 	// Get rawTx of sent txid so we can calculate the fee that was used
 	time.Sleep(1 * time.Second)
-	rawTx, err := r.WalletRPCClient().GetRawTransaction(txid)
+	rawTx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -1038,7 +1039,7 @@ func TestSendFrom(t *testing.T) {
 		totalSent += txOut.Value
 	}
 
-	feeAtoms := pfcutil.Amount(totalSpent - totalSent)
+	feeAtoms := dcrutil.Amount(totalSpent - totalSent)
 
 	// Calculate the expected balance for the default account after the tx was sent
 	sentAtoms := amountToSend + feeAtoms
@@ -1068,7 +1069,7 @@ func TestSendFrom(t *testing.T) {
 	}
 
 	// Check balance of sendfrom account
-	sendFromBalanceAfterSend1Block, err := r.WalletRPCClient().GetBalanceMinConf(accountName, 1)
+	sendFromBalanceAfterSend1Block, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(accountName, 1)
 	if err != nil {
 		t.Fatalf("getbalanceminconftype failed: %v", err)
 	}
@@ -1083,7 +1084,7 @@ func TestSendFrom(t *testing.T) {
 	// that sendfrom was properly marked to spent and removed from utxo set.
 
 	// Get the sending Tx
-	rawTx, err = r.WalletRPCClient().GetRawTransaction(txid)
+	rawTx, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("Unable to get raw transaction %v: %v", txid, err)
 	}
@@ -1093,7 +1094,7 @@ func TestSendFrom(t *testing.T) {
 		prevOut := &txIn.PreviousOutPoint
 
 		// If a txout is spent (not in the UTXO set) GetTxOutResult will be nil
-		res, err := r.WalletRPCClient().GetTxOut(&prevOut.Hash, prevOut.Index, false)
+		res, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetTxOut(&prevOut.Hash, prevOut.Index, false)
 		if err != nil {
 			t.Fatal("GetTxOut failure:", err)
 		}
@@ -1112,8 +1113,8 @@ func TestSendMany(t *testing.T) {
 
 	// Create 2 accounts to receive funds
 	accountNames := []string{"sendManyTestA", "sendManyTestB"}
-	amountsToSend := []pfcutil.Amount{700000000, 1400000000}
-	addresses := []pfcutil.Address{}
+	amountsToSend := []dcrutil.Amount{700000000, 1400000000}
+	addresses := []dcrutil.Address{}
 
 	var err error
 	for _, acct := range accountNames {
@@ -1125,11 +1126,11 @@ func TestSendMany(t *testing.T) {
 
 	// Grab new addresses from the wallet, under each account.
 	// Set corresponding amount to send to each address.
-	addressAmounts := make(map[pfcutil.Address]pfcutil.Amount)
-	totalAmountToSend := pfcutil.Amount(0)
+	addressAmounts := make(map[dcrutil.Address]dcrutil.Amount)
+	totalAmountToSend := dcrutil.Amount(0)
 
 	for i, acct := range accountNames {
-		addr, err := wcl.GetNewAddressGapPolicy(
+		addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 			acct,
 			rpcclient.GapPolicyWrap,
 		)
@@ -1144,13 +1145,13 @@ func TestSendMany(t *testing.T) {
 	}
 
 	// Check spendable balance of default account
-	defaultBalanceBeforeSend, err := wcl.GetBalanceMinConf("default", 0)
+	defaultBalanceBeforeSend, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf default failed: %v", err)
 	}
 
 	// SendMany to two addresses
-	txid, err := wcl.SendMany("default", addressAmounts)
+	txid, err := r.WalletRPCClient().Internal().(*rpcclient.Client).SendMany("default", addressAmounts)
 	if err != nil {
 		t.Fatalf("SendMany failed: %v", err)
 	}
@@ -1159,14 +1160,14 @@ func TestSendMany(t *testing.T) {
 	time.Sleep(250 * time.Millisecond)
 
 	// Check spendable balance of default account
-	defaultBalanceAfterSendUnmined, err := r.WalletRPCClient().GetBalanceMinConf("default", 0)
+	defaultBalanceAfterSendUnmined, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf("default", 0)
 	if err != nil {
 		t.Fatalf("GetBalanceMinConf failed: %v", err)
 	}
 
 	// Check balance of each receiving account
 	for i, acct := range accountNames {
-		bal, err := r.WalletRPCClient().GetBalanceMinConf(acct, 0)
+		bal, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(acct, 0)
 		if err != nil {
 			t.Fatalf("GetBalanceMinConf '%s' failed: %v", acct, err)
 		}
@@ -1178,7 +1179,7 @@ func TestSendMany(t *testing.T) {
 	}
 
 	// Get rawTx of sent txid so we can calculate the fee that was used
-	rawTx, err := r.DcrdRPCClient().GetRawTransaction(txid)
+	rawTx, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -1188,7 +1189,7 @@ func TestSendMany(t *testing.T) {
 	// found in this block.
 	_, block, _ := newBestBlock(r, t)
 
-	rawTx, err = r.DcrdRPCClient().GetRawTransaction(txid)
+	rawTx, err = r.NodeRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -1232,7 +1233,7 @@ func TestSendMany(t *testing.T) {
 
 	// Check balance after confirmations
 	for i, acct := range accountNames {
-		balanceAcctValidated, err := wcl.GetBalanceMinConf(acct, 1)
+		balanceAcctValidated, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalanceMinConf(acct, 1)
 		if err != nil {
 			t.Fatalf("GetBalanceMinConf '%s' failed: %v", acct, err)
 		}
@@ -1249,7 +1250,7 @@ func TestSendMany(t *testing.T) {
 		prevOut := &txIn.PreviousOutPoint
 
 		// If a txout is spent (not in the UTXO set) GetTxOutResult will be nil
-		res, err := wcl.GetTxOut(&prevOut.Hash, prevOut.Index, false)
+		res, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetTxOut(&prevOut.Hash, prevOut.Index, false)
 		if err != nil {
 			t.Fatal("GetTxOut failure:", err)
 		}
@@ -1267,7 +1268,7 @@ func TestListTransactions(t *testing.T) {
 	wcl := r.Wallet
 
 	// List latest transaction
-	txList1, err := wcl.ListTransactionsCount("*", 1)
+	txList1, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 1)
 	if err != nil {
 		t.Fatal("ListTransactionsCount failed:", err)
 	}
@@ -1300,7 +1301,7 @@ func TestListTransactions(t *testing.T) {
 	if err != nil {
 		t.Fatal("Blockhash not valid")
 	}
-	_, err = wcl.GetBlock(hash)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetBlock(hash)
 	if err != nil {
 		t.Fatal("Blockhash does not refer to valid block")
 	}
@@ -1323,7 +1324,7 @@ func TestListTransactions(t *testing.T) {
 		t.Fatal("Invalid Txid: ", err)
 	}
 
-	rawTx, err := wcl.GetRawTransaction(txid)
+	rawTx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatal("Invalid Txid: ", err)
 	}
@@ -1333,7 +1334,7 @@ func TestListTransactions(t *testing.T) {
 		t.Fatal("Too few vouts.")
 	}
 	txOut := rawTx.MsgTx().TxOut[txList1[0].Vout]
-	voutAmt := pfcutil.Amount(txOut.Value).ToCoin()
+	voutAmt := dcrutil.Amount(txOut.Value).ToCoin()
 	// Verify amounts agree
 	if txList1[0].Amount != voutAmt {
 		t.Fatalf("Listed amount %v does not match expected vout amount %v",
@@ -1342,7 +1343,7 @@ func TestListTransactions(t *testing.T) {
 
 	// Test number of transactions (count).  With only coinbase in this harness,
 	// length of result slice should be equal to number requested.
-	txList2, err := wcl.ListTransactionsCount("*", 2)
+	txList2, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 2)
 	if err != nil {
 		t.Fatal("ListTransactionsCount failed:", err)
 	}
@@ -1353,7 +1354,7 @@ func TestListTransactions(t *testing.T) {
 	}
 
 	// List all transactions
-	txListAllInit, err := wcl.ListTransactionsCount("*", 9999999)
+	txListAllInit, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 9999999)
 	if err != nil {
 		t.Fatal("ListTransactionsCount failed:", err)
 	}
@@ -1365,7 +1366,7 @@ func TestListTransactions(t *testing.T) {
 		t.Fatal("Failed to create account for listtransactions test")
 	}
 
-	addr, err := wcl.GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		accountName,
 		rpcclient.GapPolicyWrap,
 	)
@@ -1373,9 +1374,9 @@ func TestListTransactions(t *testing.T) {
 		t.Fatal("Failed to get new address.")
 	}
 
-	atomsInCoin := pfcutil.AtomsPerCoin
-	sendAmount := pfcutil.Amount(2400 * atomsInCoin)
-	txHash, err := wcl.SendFromMinConf("default", addr, sendAmount, 6)
+	atomsInCoin := dcrutil.AtomsPerCoin
+	sendAmount := dcrutil.Amount(2400 * atomsInCoin)
+	txHash, err := r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, sendAmount, 6)
 	if err != nil {
 		t.Fatal("Failed to send:", err)
 	}
@@ -1384,7 +1385,7 @@ func TestListTransactions(t *testing.T) {
 	mineBlock(t, r)
 
 	// Number of results should be +3 now
-	txListAll, err := wcl.ListTransactionsCount("*", 9999999)
+	txListAll, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 9999999)
 	txListAll = reverse(txListAll)
 	if err != nil {
 		t.Fatal("ListTransactionsCount failed:", err)
@@ -1436,7 +1437,7 @@ func TestListTransactions(t *testing.T) {
 	//  [1] send
 	//  [0] receive
 	//
-	txList1New, err := wcl.ListTransactionsCount("*", 3)
+	txList1New, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 3)
 	if err != nil {
 		t.Fatal("Failed to listtransactions:", err)
 	}
@@ -1461,7 +1462,7 @@ func TestListTransactions(t *testing.T) {
 
 	// Get rawTx of sent txid so we can calculate the fee that was used
 	newBestBlock(r, t) // or getrawtransaction is wrong
-	rawTx, err = r.DcrdRPCClient().GetRawTransaction(txHash)
+	rawTx, err = r.NodeRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txHash)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -1490,12 +1491,12 @@ func TestListTransactions(t *testing.T) {
 	}
 
 	// Should only accept "*" account
-	_, err = wcl.ListTransactions("default")
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactions("default")
 	if err == nil {
 		t.Fatal(`Listtransactions should only work on "*" account. "default" succeeded.`)
 	}
 
-	txList0, err := wcl.ListTransactionsCount("*", 0)
+	txList0, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 0)
 	if err != nil {
 		t.Fatal("listtransactions failed:", err)
 	}
@@ -1503,16 +1504,16 @@ func TestListTransactions(t *testing.T) {
 		t.Fatal("Length of listransactions result not zero:", len(txList0))
 	}
 
-	txListAll, err = wcl.ListTransactionsCount("*", 99999999)
+	txListAll, err = r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 99999999)
 	if err != nil {
 		t.Fatal("ListTransactionsCount failed:", err)
 	}
 
 	// Create 2 accounts to receive funds
 	accountNames := []string{"listTxA", "listTxB"}
-	amountsToSend := []pfcutil.Amount{
-		pfcutil.Amount(7 * atomsInCoin),
-		pfcutil.Amount(14 * atomsInCoin),
+	amountsToSend := []dcrutil.Amount{
+		dcrutil.Amount(7 * atomsInCoin),
+		dcrutil.Amount(14 * atomsInCoin),
 	}
 
 	for _, acct := range accountNames {
@@ -1524,10 +1525,10 @@ func TestListTransactions(t *testing.T) {
 
 	// Grab new addresses from the wallet, under each account.
 	// Set corresponding amount to send to each address.
-	addressAmounts := make(map[pfcutil.Address]pfcutil.Amount)
+	addressAmounts := make(map[dcrutil.Address]dcrutil.Amount)
 
 	for i, acct := range accountNames {
-		addr, err := wcl.GetNewAddressGapPolicy(
+		addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 			acct,
 			rpcclient.GapPolicyWrap,
 		)
@@ -1540,7 +1541,7 @@ func TestListTransactions(t *testing.T) {
 	}
 
 	// SendMany to two addresses
-	_, err = wcl.SendMany("default", addressAmounts)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).SendMany("default", addressAmounts)
 	if err != nil {
 		t.Fatalf("sendmany failed: %v", err)
 	}
@@ -1549,7 +1550,7 @@ func TestListTransactions(t *testing.T) {
 	mineBlock(t, r)
 
 	// This should add 5 results: coinbase send, 2 receives, 2 sends
-	listSentMany, err := wcl.ListTransactionsCount("*", 99999999)
+	listSentMany, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ListTransactionsCount("*", 99999999)
 	if err != nil {
 		t.Fatalf("ListTransactionsCount failed: %v", err)
 	}
@@ -1571,33 +1572,33 @@ func TestGetSetRelayFee(t *testing.T) {
 	wcl := r.Wallet
 
 	// Increase the ticket fee so these SSTx get mined first
-	walletInfo, err := wcl.WalletInfo()
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("WalletInfo failed:", err)
 	}
 	// Save the original fee
-	origTxFee, err := pfcutil.NewAmount(walletInfo.TxFee)
+	origTxFee, err := dcrutil.NewAmount(walletInfo.TxFee)
 	if err != nil {
 		t.Fatalf("Invalid Amount %f. %v", walletInfo.TxFee, err)
 	}
 	// Increase fee by 50%
 	newTxFeeCoin := walletInfo.TxFee * 1.5
-	newTxFee, err := pfcutil.NewAmount(newTxFeeCoin)
+	newTxFee, err := dcrutil.NewAmount(newTxFeeCoin)
 	if err != nil {
 		t.Fatalf("Invalid Amount %f. %v", newTxFeeCoin, err)
 	}
 
-	err = wcl.SetTxFee(newTxFee)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTxFee(newTxFee)
 	if err != nil {
 		t.Fatal("SetTxFee failed:", err)
 	}
 
 	// Check that wallet thinks the fee is as expected
-	walletInfo, err = wcl.WalletInfo()
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("WalletInfo failed:", err)
 	}
-	newTxFeeActual, err := pfcutil.NewAmount(walletInfo.TxFee)
+	newTxFeeActual, err := dcrutil.NewAmount(walletInfo.TxFee)
 	if err != nil {
 		t.Fatalf("Invalid Amount %f. %v", walletInfo.TxFee, err)
 	}
@@ -1613,7 +1614,7 @@ func TestGetSetRelayFee(t *testing.T) {
 	}
 
 	// Grab a fresh address from the test account
-	addr, err := r.WalletRPCClient().GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		accountName,
 		rpcclient.GapPolicyWrap,
 	)
@@ -1622,8 +1623,8 @@ func TestGetSetRelayFee(t *testing.T) {
 	}
 
 	// SendFromMinConf to addr
-	amountToSend := pfcutil.Amount(700000000)
-	txid, err := wcl.SendFromMinConf("default", addr, amountToSend, 0)
+	amountToSend := dcrutil.Amount(700000000)
+	txid, err := r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, amountToSend, 0)
 	if err != nil {
 		t.Fatalf("sendfromminconf failed: %v", err)
 	}
@@ -1631,7 +1632,7 @@ func TestGetSetRelayFee(t *testing.T) {
 	newBestBlock(r, t)
 
 	// Compute the fee
-	rawTx, err := r.DcrdRPCClient().GetRawTransaction(txid)
+	rawTx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -1646,13 +1647,13 @@ func TestGetSetRelayFee(t *testing.T) {
 	}
 
 	// Negative fee should throw an error
-	err = wcl.SetTxFee(pfcutil.Amount(-1))
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTxFee(dcrutil.Amount(-1))
 	if err == nil {
 		t.Fatal("SetTxFee accepted negative fee")
 	}
 
 	// Set it back
-	err = wcl.SetTxFee(origTxFee)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTxFee(origTxFee)
 	if err != nil {
 		t.Fatal("SetTxFee failed:", err)
 	}
@@ -1672,35 +1673,35 @@ func TestGetSetTicketFee(t *testing.T) {
 	wcl := r.Wallet
 
 	// Get the current ticket fee
-	walletInfo, err := wcl.WalletInfo()
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("WalletInfo failed:", err)
 	}
 	nominalTicketFee := walletInfo.TicketFee
-	origTicketFee, err := pfcutil.NewAmount(nominalTicketFee)
+	origTicketFee, err := dcrutil.NewAmount(nominalTicketFee)
 	if err != nil {
 		t.Fatal("Invalid Amount:", nominalTicketFee)
 	}
 
 	// Increase the ticket fee to ensure the SSTx in ths test gets mined
 	newTicketFeeCoin := nominalTicketFee * 1.5
-	newTicketFee, err := pfcutil.NewAmount(newTicketFeeCoin)
+	newTicketFee, err := dcrutil.NewAmount(newTicketFeeCoin)
 	if err != nil {
 		t.Fatal("Invalid Amount:", newTicketFeeCoin)
 	}
 
-	err = wcl.SetTicketFee(newTicketFee)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTicketFee(newTicketFee)
 	if err != nil {
 		t.Fatal("SetTicketFee failed:", err)
 	}
 
 	// Check that wallet is set to use the new fee
-	walletInfo, err = wcl.WalletInfo()
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("WalletInfo failed:", err)
 	}
 	nominalTicketFee = walletInfo.TicketFee
-	newTicketFeeActual, err := pfcutil.NewAmount(nominalTicketFee)
+	newTicketFeeActual, err := dcrutil.NewAmount(nominalTicketFee)
 	if err != nil {
 		t.Fatalf("Invalid Amount %f. %v", nominalTicketFee, err)
 	}
@@ -1711,12 +1712,12 @@ func TestGetSetTicketFee(t *testing.T) {
 
 	// Purchase ticket
 	minConf, numTickets := 0, 1
-	priceLimit, err := pfcutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
+	priceLimit, err := dcrutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
 	if err != nil {
 		t.Fatal("Invalid Amount. ", err)
 	}
 	noSplitTransactions := false
-	hashes, err := wcl.PurchaseTicket("default", priceLimit,
+	hashes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, &numTickets, nil, nil, nil, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Unable to purchase ticket:", err)
@@ -1732,7 +1733,7 @@ func TestGetSetTicketFee(t *testing.T) {
 	newBestBlock(r, t)
 
 	// Compute the actual fee for the ticket purchase
-	rawTx, err := wcl.GetRawTransaction(hashes[0])
+	rawTx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(hashes[0])
 	if err != nil {
 		t.Fatal("Invalid Txid:", err)
 	}
@@ -1747,13 +1748,13 @@ func TestGetSetTicketFee(t *testing.T) {
 	}
 
 	// Negative fee should throw and error
-	err = wcl.SetTicketFee(pfcutil.Amount(-1))
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTicketFee(dcrutil.Amount(-1))
 	if err == nil {
 		t.Fatal("SetTicketFee accepted negative fee")
 	}
 
 	// Set it back
-	err = wcl.SetTicketFee(origTicketFee)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTicketFee(origTicketFee)
 	if err != nil {
 		t.Fatal("SetTicketFee failed:", err)
 	}
@@ -1772,14 +1773,14 @@ func TestGetTickets(t *testing.T) {
 	wcl := r.Wallet
 
 	// Initial number of mature (live) tickets
-	ticketHashes, err := wcl.GetTickets(false)
+	ticketHashes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetTickets(false)
 	if err != nil {
 		t.Fatal("GetTickets failed:", err)
 	}
 	numTicketsInitLive := len(ticketHashes)
 
 	// Initial number of immature (not live) and unconfirmed (unmined) tickets
-	ticketHashes, err = wcl.GetTickets(true)
+	ticketHashes, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetTickets(true)
 	if err != nil {
 		t.Fatal("GetTickets failed:", err)
 	}
@@ -1788,12 +1789,12 @@ func TestGetTickets(t *testing.T) {
 
 	// Purchase a full blocks worth of tickets
 	minConf, numTicketsPurchased := 1, int(chaincfg.SimNetParams.MaxFreshStakePerBlock)
-	priceLimit, err := pfcutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
+	priceLimit, err := dcrutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
 	if err != nil {
 		t.Fatal("Invalid Amount. ", err)
 	}
 	noSplitTransactions := false
-	hashes, err := wcl.PurchaseTicket("default", priceLimit,
+	hashes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, &numTicketsPurchased, nil, nil, nil, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Unable to purchase tickets:", err)
@@ -1804,7 +1805,7 @@ func TestGetTickets(t *testing.T) {
 	}
 
 	// Verify GetTickets(true) sees these unconfirmed SSTx
-	ticketHashes, err = wcl.GetTickets(true)
+	ticketHashes, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetTickets(true)
 	if err != nil {
 		t.Fatal("GetTickets failed:", err)
 	}
@@ -1835,7 +1836,7 @@ func TestGetTickets(t *testing.T) {
 
 	// Verify each SSTx hash
 	for _, hash := range ticketHashes {
-		tx, err := wcl.GetRawTransaction(hash)
+		tx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(hash)
 		if err != nil {
 			t.Fatalf("Invalid transaction %v: %v", tx, err)
 		}
@@ -1857,7 +1858,7 @@ func TestPurchaseTickets(t *testing.T) {
 	wcl := r.Wallet
 
 	// Grab a fresh address from the wallet.
-	addr, err := wcl.GetNewAddressGapPolicy(
+	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 		"default",
 		rpcclient.GapPolicyWrap,
 	)
@@ -1868,7 +1869,7 @@ func TestPurchaseTickets(t *testing.T) {
 	// Set various variables for the test
 	minConf := 0
 	expiry := 0
-	priceLimit, err := pfcutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
+	priceLimit, err := dcrutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
 	if err != nil {
 		t.Fatal("Invalid Amount.", err)
 	}
@@ -1876,7 +1877,7 @@ func TestPurchaseTickets(t *testing.T) {
 	// Test nil ticketAddress
 	oneTix := 1
 	noSplitTransactions := false
-	hashes, err := wcl.PurchaseTicket("default", priceLimit,
+	hashes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, &oneTix, nil, nil, &expiry, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Unable to purchase with nil ticketAddr:", err)
@@ -1884,13 +1885,13 @@ func TestPurchaseTickets(t *testing.T) {
 	if len(hashes) != 1 {
 		t.Fatal("More than one tx hash returned purchasing single ticket.")
 	}
-	_, err = wcl.GetRawTransaction(hashes[0])
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(hashes[0])
 	if err != nil {
 		t.Fatal("Invalid Txid:", err)
 	}
 
 	// test numTickets == nil
-	hashes, err = wcl.PurchaseTicket("default", priceLimit,
+	hashes, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, nil, nil, nil, &expiry, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Unable to purchase with nil numTickets:", err)
@@ -1898,7 +1899,7 @@ func TestPurchaseTickets(t *testing.T) {
 	if len(hashes) != 1 {
 		t.Fatal("More than one tx hash returned. Expected one.")
 	}
-	_, err = wcl.GetRawTransaction(hashes[0])
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(hashes[0])
 	if err != nil {
 		t.Fatal("Invalid Txid:", err)
 	}
@@ -1909,14 +1910,14 @@ func TestPurchaseTickets(t *testing.T) {
 	// Test expiry - earliest is next height + 1
 	// invalid
 	expiry = int(curBlockHeight)
-	_, err = wcl.PurchaseTicket("default", priceLimit,
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, nil, nil, nil, &expiry, &noSplitTransactions, nil)
 	if err == nil {
 		t.Fatal("Invalid expiry used to purchase tickets")
 	}
 	// invalid
 	expiry = int(curBlockHeight) + 1
-	_, err = wcl.PurchaseTicket("default", priceLimit,
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, nil, nil, nil, &expiry, &noSplitTransactions, nil)
 	if err == nil {
 		t.Fatal("Invalid expiry used to purchase tickets")
@@ -1924,7 +1925,7 @@ func TestPurchaseTickets(t *testing.T) {
 
 	// valid expiry
 	expiry = int(curBlockHeight) + 2
-	hashes, err = wcl.PurchaseTicket("default", priceLimit,
+	hashes, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, nil, nil, nil, &expiry, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Unable to purchase tickets:", err)
@@ -1933,7 +1934,7 @@ func TestPurchaseTickets(t *testing.T) {
 		t.Fatal("More than one tx hash returned. Expected one.")
 	}
 	ticketWithExpiry := hashes[0]
-	_, err = wcl.GetRawTransaction(ticketWithExpiry)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(ticketWithExpiry)
 	if err != nil {
 		t.Fatal("Invalid Txid:", err)
 	}
@@ -1942,37 +1943,37 @@ func TestPurchaseTickets(t *testing.T) {
 	// ticket with an expiry 2 blocks away.
 
 	// Increase the ticket fee so these SSTx get mined first
-	walletInfo, err := wcl.WalletInfo()
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("WalletInfo failed.", err)
 	}
-	origTicketFee, err := pfcutil.NewAmount(walletInfo.TicketFee)
+	origTicketFee, err := dcrutil.NewAmount(walletInfo.TicketFee)
 	if err != nil {
 		t.Fatalf("Invalid Amount %f. %v", walletInfo.TicketFee, err)
 	}
-	newTicketFee, err := pfcutil.NewAmount(walletInfo.TicketFee * 1.5)
+	newTicketFee, err := dcrutil.NewAmount(walletInfo.TicketFee * 1.5)
 	if err != nil {
 		t.Fatalf("Invalid Amount %f. %v", walletInfo.TicketFee, err)
 	}
 
-	if err = wcl.SetTicketFee(newTicketFee); err != nil {
+	if err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTicketFee(newTicketFee); err != nil {
 		t.Fatalf("SetTicketFee failed for Amount %v: %v", newTicketFee, err)
 	}
 
 	expiry = 0
 	numTicket := 2 * int(chaincfg.SimNetParams.MaxFreshStakePerBlock)
-	_, err = r.WalletRPCClient().PurchaseTicket("default", priceLimit,
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, addr, &numTicket, nil, nil, &expiry, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Unable to purchase tickets:", err)
 	}
 
-	if err = wcl.SetTicketFee(origTicketFee); err != nil {
+	if err = r.WalletRPCClient().Internal().(*rpcclient.Client).SetTicketFee(origTicketFee); err != nil {
 		t.Fatalf("SetTicketFee failed for Amount %v: %v", origTicketFee, err)
 	}
 
 	// Check for the ticket
-	_, err = wcl.GetTransaction(ticketWithExpiry)
+	_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetTransaction(ticketWithExpiry)
 	if err != nil {
 		t.Fatal("Ticket not found:", err)
 	}
@@ -1983,15 +1984,15 @@ func TestPurchaseTickets(t *testing.T) {
 
 	// Ticket with expiry set should now be expired (unmined and removed from
 	// mempool).  An unmined and expired tx should have been removed/pruned
-	txRawVerbose, err := wcl.GetRawTransactionVerbose(ticketWithExpiry)
+	txRawVerbose, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransactionVerbose(ticketWithExpiry)
 	if err == nil {
 		t.Fatalf("Found transaction that should be expired (height %v): %v",
 			txRawVerbose.BlockHeight, err)
 	}
 
 	// Test too low price
-	lowPrice := pfcutil.Amount(1)
-	hashes, err = wcl.PurchaseTicket("default", lowPrice,
+	lowPrice := dcrutil.Amount(1)
+	hashes, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", lowPrice,
 		&minConf, nil, nil, nil, nil, nil, &noSplitTransactions, nil)
 	if err == nil {
 		t.Fatalf("PurchaseTicket succeeded with limit of %f, but diff was %f.",
@@ -2008,11 +2009,11 @@ func TestPurchaseTickets(t *testing.T) {
 	desiredHeight := uint32(150)
 	numTicket = int(chaincfg.SimNetParams.MaxFreshStakePerBlock)
 	for curBlockHeight < desiredHeight {
-		priceLimit, err = pfcutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
+		priceLimit, err = dcrutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
 		if err != nil {
 			t.Fatal("Invalid Amount.", err)
 		}
-		_, err = r.WalletRPCClient().PurchaseTicket("default", priceLimit,
+		_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 			&minConf, addr, &numTicket, nil, nil, nil, &noSplitTransactions, nil)
 
 		// Do not allow even ErrSStxPriceExceedsSpendLimit since price is set
@@ -2039,12 +2040,12 @@ func TestGetStakeInfo(t *testing.T) {
 	wcl := r.Wallet
 
 	// Compare stake difficulty from getstakeinfo with getstakeinfo
-	sdiff, err := wcl.GetStakeDifficulty()
+	sdiff, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
 	if err != nil {
 		t.Fatal("GetStakeDifficulty failed: ", err)
 	}
 
-	stakeinfo, err := wcl.GetStakeInfo()
+	stakeinfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeInfo()
 	if err != nil {
 		t.Fatal("GetStakeInfo failed: ", err)
 	}
@@ -2091,13 +2092,13 @@ func TestGetStakeInfo(t *testing.T) {
 
 	// Buy tickets to check that they shows up in ownmempooltix/allmempooltix
 	minConf := 1
-	priceLimit, err := pfcutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
+	priceLimit, err := dcrutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
 	if err != nil {
 		t.Fatal("Invalid Amount.", err)
 	}
 	numTickets := int(chaincfg.SimNetParams.MaxFreshStakePerBlock)
 	noSplitTransactions := false
-	tickets, err := r.WalletRPCClient().PurchaseTicket("default", priceLimit,
+	tickets, err := r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 		&minConf, nil, &numTickets, nil, nil, nil, &noSplitTransactions, nil)
 	if err != nil {
 		t.Fatal("Failed to purchase tickets:", err)
@@ -2105,7 +2106,7 @@ func TestGetStakeInfo(t *testing.T) {
 
 	// Before mining a block allmempooltix and ownmempooltix should be equal to
 	// the number of tickets just purchesed in this fresh harness
-	stakeinfo = mustGetStakeInfo(wcl, t)
+	stakeinfo = mustGetStakeInfo(r.WalletRPCClient().Internal().(*rpcclient.Client), t)
 	if stakeinfo.AllMempoolTix != uint32(numTickets) {
 		t.Fatalf("getstakeinfo AllMempoolTix mismatch: %d vs %d",
 			stakeinfo.AllMempoolTix, numTickets)
@@ -2122,14 +2123,14 @@ func TestGetStakeInfo(t *testing.T) {
 	newBestBlock(r, t)
 
 	// Compute the height at which these tickets mature
-	ticketsTx, err := wcl.GetRawTransactionVerbose(tickets[0])
+	ticketsTx, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetRawTransactionVerbose(tickets[0])
 	if err != nil {
 		t.Fatalf("Unable to gettransaction for ticket.")
 	}
 	maturityHeight := ticketsTx.BlockHeight + int64(chaincfg.SimNetParams.TicketMaturity)
 
 	// After mining tickets, immature should be the number of tickets
-	stakeinfo = mustGetStakeInfo(wcl, t)
+	stakeinfo = mustGetStakeInfo(r.WalletRPCClient().Internal().(*rpcclient.Client), t)
 	if stakeinfo.Immature != uint32(numTickets) {
 		t.Fatalf("Tickets not reported as immature (got %d, expected %d)",
 			stakeinfo.Immature, numTickets)
@@ -2152,7 +2153,7 @@ func TestGetStakeInfo(t *testing.T) {
 	// NOTE: voting does not begin until TicketValidationHeight
 
 	// mature should be number of tickets now
-	stakeinfo = mustGetStakeInfo(wcl, t)
+	stakeinfo = mustGetStakeInfo(r.WalletRPCClient().Internal().(*rpcclient.Client), t)
 	if stakeinfo.Live != uint32(numTickets) {
 		t.Fatalf("Tickets not reported as live (got %d, expected %d)",
 			stakeinfo.Live, numTickets)
@@ -2166,12 +2167,12 @@ func TestGetStakeInfo(t *testing.T) {
 	// Buy some more tickets (4 blocks worth) so chain doesn't stall when voting
 	// burns through the batch purchased above
 	for i := 0; i < 4; i++ {
-		priceLimit, err := pfcutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
+		priceLimit, err := dcrutil.NewAmount(2 * mustGetStakeDiffNext(r, t))
 		if err != nil {
 			t.Fatal("Invalid Amount.", err)
 		}
 		numTickets := int(chaincfg.SimNetParams.MaxFreshStakePerBlock)
-		_, err = r.WalletRPCClient().PurchaseTicket("default", priceLimit,
+		_, err = r.WalletRPCClient().Internal().(*rpcclient.Client).PurchaseTicket("default", priceLimit,
 			&minConf, nil, &numTickets, nil, nil, nil, &noSplitTransactions, nil)
 		if err != nil {
 			t.Fatal("Failed to purchase tickets:", err)
@@ -2186,7 +2187,7 @@ func TestGetStakeInfo(t *testing.T) {
 	time.Sleep(250 * time.Millisecond)
 
 	// voted should be TicketsPerBlock
-	stakeinfo = mustGetStakeInfo(wcl, t)
+	stakeinfo = mustGetStakeInfo(r.WalletRPCClient().Internal().(*rpcclient.Client), t)
 	expectedVotes := chaincfg.SimNetParams.TicketsPerBlock
 	if stakeinfo.Voted != uint32(expectedVotes) {
 		t.Fatalf("Tickets not reported as voted (got %d, expected %d)",
@@ -2195,7 +2196,7 @@ func TestGetStakeInfo(t *testing.T) {
 
 	newBestBlock(r, t)
 	// voted should be 2*TicketsPerBlock
-	stakeinfo = mustGetStakeInfo(wcl, t)
+	stakeinfo = mustGetStakeInfo(r.WalletRPCClient().Internal().(*rpcclient.Client), t)
 	expectedVotes = 2 * chaincfg.SimNetParams.TicketsPerBlock
 	if stakeinfo.Voted != uint32(expectedVotes) {
 		t.Fatalf("Tickets not reported as voted (got %d, expected %d)",
@@ -2228,7 +2229,7 @@ func TestWalletInfo(t *testing.T) {
 
 	// WalletInfo is tested exhaustively in other test, so only do some basic
 	// checks here
-	walletInfo, err := wcl.WalletInfo()
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
@@ -2248,8 +2249,8 @@ func mustGetStakeInfo(wcl *rpcclient.Client, t *testing.T) *dcrjson.GetStakeInfo
 	return stakeinfo
 }
 
-func mustGetStakeDiff(r *Harness, t *testing.T) float64 {
-	stakeDiffResult, err := r.WalletRPCClient().GetStakeDifficulty()
+func mustGetStakeDiff(r *coinharness.Harness, t *testing.T) float64 {
+	stakeDiffResult, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
 	if err != nil {
 		t.Fatal("GetStakeDifficulty failed:", err)
 	}
@@ -2257,8 +2258,8 @@ func mustGetStakeDiff(r *Harness, t *testing.T) float64 {
 	return stakeDiffResult.CurrentStakeDifficulty
 }
 
-func mustGetStakeDiffNext(r *Harness, t *testing.T) float64 {
-	stakeDiffResult, err := r.WalletRPCClient().GetStakeDifficulty()
+func mustGetStakeDiffNext(r *coinharness.Harness, t *testing.T) float64 {
+	stakeDiffResult, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
 	if err != nil {
 		t.Fatal("GetStakeDifficulty failed:", err)
 	}
@@ -2266,7 +2267,7 @@ func mustGetStakeDiffNext(r *Harness, t *testing.T) float64 {
 	return stakeDiffResult.NextStakeDifficulty
 }
 
-func advanceToHeight(r *Harness, t *testing.T, height uint32) {
+func advanceToHeight(r *coinharness.Harness, t *testing.T, height uint32) {
 	curBlockHeight := getBestBlockHeight(r, t)
 	initHeight := curBlockHeight
 
@@ -2282,8 +2283,8 @@ func advanceToHeight(r *Harness, t *testing.T, height uint32) {
 		curBlockHeight)
 }
 
-func newBlockAt(currentHeight uint32, r *Harness,
-	t *testing.T) (uint32, *pfcutil.Block, []*chainhash.Hash) {
+func newBlockAt(currentHeight uint32, r *coinharness.Harness,
+	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
 	height, block, blockHashes := newBlockAtQuick(currentHeight, r, t)
 
 	time.Sleep(700 * time.Millisecond)
@@ -2291,38 +2292,38 @@ func newBlockAt(currentHeight uint32, r *Harness,
 	return height, block, blockHashes
 }
 
-func newBlockAtQuick(currentHeight uint32, r *Harness,
-	t *testing.T) (uint32, *pfcutil.Block, []*chainhash.Hash) {
+func newBlockAtQuick(currentHeight uint32, r *coinharness.Harness,
+	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
 
 	blockHashes, err := r.GenerateBlock(currentHeight)
 	if err != nil {
 		t.Fatalf("Unable to generate single block: %v", err)
 	}
 
-	block, err := r.DcrdRPCClient().GetBlock(blockHashes[0])
+	block, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlock(blockHashes[0])
 	if err != nil {
 		t.Fatalf("Unable to get block: %v", err)
 	}
 
-	return block.Header.Height, pfcutil.NewBlock(block), blockHashes
+	return block.Header.Height, dcrutil.NewBlock(block), blockHashes
 }
 
-func getBestBlock(r *Harness, t *testing.T) (uint32, *pfcutil.Block, *chainhash.Hash) {
-	bestBlockHash, err := r.DcrdRPCClient().GetBestBlockHash()
+func getBestBlock(r *coinharness.Harness, t *testing.T) (uint32, *dcrutil.Block, *chainhash.Hash) {
+	bestBlockHash, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBestBlockHash()
 	if err != nil {
 		t.Fatalf("Unable to get best block hash: %v", err)
 	}
-	bestBlock, err := r.DcrdRPCClient().GetBlock(bestBlockHash)
+	bestBlock, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlock(bestBlockHash)
 	if err != nil {
 		t.Fatalf("Unable to get block: %v", err)
 	}
 	curBlockHeight := bestBlock.Header.Height
 
-	return curBlockHeight, pfcutil.NewBlock(bestBlock), bestBlockHash
+	return curBlockHeight, dcrutil.NewBlock(bestBlock), bestBlockHash
 }
 
-func getBestBlockHeight(r *Harness, t *testing.T) uint32 {
-	_, height, err := r.DcrdRPCClient().GetBestBlock()
+func getBestBlockHeight(r *coinharness.Harness, t *testing.T) uint32 {
+	_, height, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBestBlock()
 	if err != nil {
 		t.Fatalf("Failed to GetBestBlock: %v", err)
 	}
@@ -2330,15 +2331,15 @@ func getBestBlockHeight(r *Harness, t *testing.T) uint32 {
 	return uint32(height)
 }
 
-func newBestBlock(r *Harness,
-	t *testing.T) (uint32, *pfcutil.Block, []*chainhash.Hash) {
+func newBestBlock(r *coinharness.Harness,
+	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
 	height := getBestBlockHeight(r, t)
 	height, block, blockHash := newBlockAt(height, r, t)
 	return height, block, blockHash
 }
 
 // includesTx checks if a block contains a transaction hash
-func includesTx(txHash *chainhash.Hash, block *pfcutil.Block) bool {
+func includesTx(txHash *chainhash.Hash, block *dcrutil.Block) bool {
 	if len(block.Transactions()) <= 1 {
 		return false
 	}
@@ -2356,7 +2357,7 @@ func includesTx(txHash *chainhash.Hash, block *pfcutil.Block) bool {
 }
 
 // includesTx checks if a block contains a transaction hash
-func includesStakeTx(txHash *chainhash.Hash, block *pfcutil.Block) bool {
+func includesStakeTx(txHash *chainhash.Hash, block *dcrutil.Block) bool {
 	if len(block.STransactions()) <= 1 {
 		return false
 	}
@@ -2375,7 +2376,7 @@ func includesStakeTx(txHash *chainhash.Hash, block *pfcutil.Block) bool {
 
 // getWireMsgTxFee computes the effective absolute fee from a Tx as the amount
 // spent minus sent.
-func getWireMsgTxFee(tx *pfcutil.Tx) pfcutil.Amount {
+func getWireMsgTxFee(tx *dcrutil.Tx) dcrutil.Amount {
 	var totalSpent int64
 	for _, txIn := range tx.MsgTx().TxIn {
 		totalSpent += txIn.ValueIn
@@ -2386,7 +2387,7 @@ func getWireMsgTxFee(tx *pfcutil.Tx) pfcutil.Amount {
 		totalSent += txOut.Value
 	}
 
-	return pfcutil.Amount(totalSpent - totalSent)
+	return dcrutil.Amount(totalSpent - totalSent)
 }
 
 // getOutPointString uses OutPoint.String() to combine the tx hash with vout
