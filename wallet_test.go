@@ -2,6 +2,7 @@ package dcrregtest
 
 import (
 	"encoding/hex"
+	"github.com/decred/dcrd/blockchain/stake"
 	"github.com/decred/dcrd/chaincfg"
 	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrd/dcrjson"
@@ -10,8 +11,8 @@ import (
 	"github.com/decred/dcrd/txscript"
 	"github.com/decred/dcrd/wire"
 	"github.com/decred/dcrwallet/wallet"
-	"github.com/jfixby/coinharness"
 	"github.com/google/go-cmp/cmp"
+	"github.com/jfixby/coinharness"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -112,7 +113,7 @@ func TestGetNewAddress(t *testing.T) {
 	numOfReusages := 3
 	addrCounter := make(map[string]int)
 	for i := 0; i < wallet.DefaultGapLimit*numOfReusages; i++ {
-		addr, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
+		addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 			"default", rpcclient.GapPolicyWrap)
 
 		// count address
@@ -124,7 +125,7 @@ func TestGetNewAddress(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		validRes, err = wcl.ValidateAddress(addr)
+		validRes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ValidateAddress(addr)
 		if err != nil {
 			t.Fatalf(
 				"Unable to validate address %s: %v",
@@ -150,13 +151,13 @@ func TestGetNewAddress(t *testing.T) {
 
 	// ignore gap policy
 	for i := 0; i < wallet.DefaultGapLimit*2; i++ {
-		addr, err = r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
+		addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
 			"default", rpcclient.GapPolicyIgnore)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		validRes, err = wcl.ValidateAddress(addr)
+		validRes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ValidateAddress(addr)
 		if err != nil {
 			t.Fatalf(
 				"Unable to validate address %s: %v",
@@ -849,7 +850,7 @@ func TestListUnspent(t *testing.T) {
 
 	// Make sure these txInIDS are not in the new UTXO set
 	time.Sleep(2 * time.Second)
-	list, err = wcl.ListUnspent()
+	list, err = r.WalletRPCClient().Internal().(*rpcclient.Client).ListUnspent()
 	if err != nil {
 		t.Fatalf("Failed to get UTXOs")
 	}
@@ -1670,9 +1671,6 @@ func TestGetSetTicketFee(t *testing.T) {
 	// dcrrpcclient does not have a getticketee or any direct method, so we
 	// need to use walletinfo to get.  SetTicketFee can be used to set.
 
-	// Wallet RPC client
-	wcl := r.Wallet
-
 	// Get the current ticket fee
 	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
 	if err != nil {
@@ -1770,9 +1768,6 @@ func TestGetTickets(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
 
-	// Wallet RPC client
-	wcl := r.Wallet
-
 	// Initial number of mature (live) tickets
 	ticketHashes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetTickets(false)
 	if err != nil {
@@ -1855,8 +1850,6 @@ func TestPurchaseTickets(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
 
-	// Wallet RPC client
-	wcl := r.Wallet
 
 	// Grab a fresh address from the wallet.
 	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
@@ -2037,8 +2030,6 @@ func TestGetStakeInfo(t *testing.T) {
 	// Skip tests when running with -short
 
 	r := ObtainHarness(TestGetStakeInfoHarnessTag)
-	// Wallet RPC client
-	wcl := r.Wallet
 
 	// Compare stake difficulty from getstakeinfo with getstakeinfo
 	sdiff, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
@@ -2225,8 +2216,6 @@ func TestWalletInfo(t *testing.T) {
 	// Skip tests when running with -short
 
 	r := ObtainHarness(mainHarnessName)
-	// Wallet RPC client
-	wcl := r.Wallet
 
 	// WalletInfo is tested exhaustively in other test, so only do some basic
 	// checks here
