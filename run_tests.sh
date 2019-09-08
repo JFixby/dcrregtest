@@ -36,6 +36,8 @@ testrepo () {
   GO=go
 
   $GO version
+  dcrd --version
+  dcrwallet --version
 
   # binary needed for RPC tests
   env CC=gcc $GO build
@@ -50,3 +52,5 @@ testrepo () {
   echo "Tests completed successfully!"
 }
 
+testrepo
+exit
