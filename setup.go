@@ -22,6 +22,7 @@ import (
 
 // Default harness name
 const mainHarnessName = "main"
+const mainWalletHarnessName = "main-wallet"
 
 // SimpleTestSetup harbours:
 // - rpctest setup
@@ -39,6 +40,10 @@ type SimpleTestSetup struct {
 	// Regnet25 creates a regnet test harness
 	// with 25 mature outputs.
 	Regnet25 *ChainWithMatureOutputsSpawner
+
+	// Simnet25 creates a simnet test harness
+	// with 25 mature outputs.
+	Simnet25 *ChainWithMatureOutputsSpawner
 
 	// Regnet5 creates a regnet test harness
 	// with 5 mature outputs.
@@ -160,6 +165,20 @@ func Setup() *SimpleTestSetup {
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
 		NumMatureOutputs:  1,
+		NetPortManager:    portManager,
+		WalletFactory:     simnetWalletFactory,
+		NodeFactory:       nodeFactory,
+		ActiveNet:         &chaincfg.SimNetParams,
+		NodeStartExtraArguments: map[string]interface{}{
+			"rejectnonstd": commandline.NoArgumentValue,
+		},
+	}
+
+	setup.Simnet25 = &ChainWithMatureOutputsSpawner{
+		WorkingDir:        setup.WorkingDir.Path(),
+		DebugNodeOutput:   true,
+		DebugWalletOutput: true,
+		NumMatureOutputs:  25,
 		NetPortManager:    portManager,
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,

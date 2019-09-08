@@ -19,6 +19,10 @@ func ObtainHarness(tag string) *coinharness.Harness {
 	return s.(*coinharness.Harness)
 }
 
+func ObtainWalletHarness(tag string) *coinharness.Harness {
+	return testSetup.Simnet25.NewInstance(tag).(*coinharness.Harness)
+}
+
 var testSetup *SimpleTestSetup
 
 // TestMain is executed by go-test, and is
@@ -32,7 +36,7 @@ func TestMain(m *testing.M) {
 		// Initialize harnesses before running any tests
 		// otherwise they will be created on request.
 		tagsList := []string{
-			mainHarnessName,
+			//mainHarnessName,
 		}
 		testSetup.harnessPool.InitTags(tagsList)
 	}

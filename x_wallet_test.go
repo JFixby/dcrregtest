@@ -24,7 +24,7 @@ import (
 func TestGetNewAddress(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -175,7 +175,7 @@ func TestGetNewAddress(t *testing.T) {
 func TestValidateAddress(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 	//-----------------------------------------
@@ -315,7 +315,7 @@ func TestValidateAddress(t *testing.T) {
 func TestWalletPassphrase(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -436,7 +436,7 @@ func TestWalletPassphrase(t *testing.T) {
 func TestGetBalance(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -563,14 +563,12 @@ func TestGetBalance(t *testing.T) {
 	}
 }
 
-func ObtainWalletHarness(s string) *coinharness.Harness {
-	panic("")
-}
+
 
 func TestListAccounts(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -722,7 +720,7 @@ func TestListAccounts(t *testing.T) {
 func TestListUnspent(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -874,7 +872,7 @@ func TestListUnspent(t *testing.T) {
 func TestSendToAddress(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 
 	// Grab a fresh address from the wallet.
 	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
@@ -947,7 +945,7 @@ func TestSendToAddress(t *testing.T) {
 func TestSendFrom(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	accountName := "sendFromTest"
 	err := r.WalletRPCClient().Internal().(*rpcclient.Client).CreateNewAccount(accountName)
 	if err != nil {
@@ -1111,7 +1109,7 @@ func TestSendFrom(t *testing.T) {
 func TestSendMany(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -1567,7 +1565,7 @@ func TestListTransactions(t *testing.T) {
 func TestGetSetRelayFee(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 
 	// dcrrpcclient does not have a getwalletfee or any direct method, so we
 	// need to use walletinfo to get.  SetTxFee can be used to set.
@@ -1669,7 +1667,7 @@ func TestGetSetRelayFee(t *testing.T) {
 func TestGetSetTicketFee(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// dcrrpcclient does not have a getticketee or any direct method, so we
 	// need to use walletinfo to get.  SetTicketFee can be used to set.
 
@@ -1767,7 +1765,7 @@ func TestGetSetTicketFee(t *testing.T) {
 func TestGetTickets(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
 
 	// Initial number of mature (live) tickets
@@ -1849,7 +1847,7 @@ func TestGetTickets(t *testing.T) {
 func TestPurchaseTickets(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
 
 	// Grab a fresh address from the wallet.
@@ -2216,7 +2214,7 @@ func TestGetStakeInfo(t *testing.T) {
 func TestWalletInfo(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainWalletHarnessName)
 
 	// WalletInfo is tested exhaustively in other test, so only do some basic
 	// checks here
