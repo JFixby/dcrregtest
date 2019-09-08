@@ -41,33 +41,12 @@ testrepo () {
   env CC=gcc $GO build
 
   # run tests on all modules
-  ROOTPATH=$($GO list -m -f {{.Dir}} 2>/dev/null)
-  ROOTPATHPATTERN=$(echo $ROOTPATH | sed 's/\\/\\\\/g' | sed 's/\//\\\//g')
-  MODPATHS=$($GO list -m -f {{.Dir}} all 2>/dev/null | grep "^$ROOTPATHPATTERN"\
-    | sed -e "s/^$ROOTPATHPATTERN//" -e 's/^\\//' -e 's/^\///')
-  MODPATHS=". $MODPATHS"
-  for module in $MODPATHS; do
-    echo "==> ${module}"
-    env GORACE='halt_on_error=1' CC=gcc $GO test -v ./${module}/...
-  done
+  export GO111MODULE=on
+  go fmt ./...
+  go build ./...
+  go test ./...
 
   echo "------------------------------------------"
   echo "Tests completed successfully!"
 }
 
-DOCKER=
-[[ "$1" == "docker" || "$1" == "podman" ]] && DOCKER=$1
-if [ ! "$DOCKER" ]; then
-    testrepo
-    exit
-fi
-
-# use Travis cache with docker
-DOCKER_IMAGE_TAG=dcrd-golang-builder-$GOVERSION
-$DOCKER pull jfixby/$DOCKER_IMAGE_TAG
-
-$DOCKER run --rm -it -v $(pwd):/src:Z jfixby/$DOCKER_IMAGE_TAG /bin/bash -c "\
-  rsync -ra --filter=':- .gitignore'  \
-  /src/ /go/src/github.com/jfixby/$REPO/ && \
-  dcrd --version && \
-  env GOVERSION=$GOVERSION GO111MODULE=on bash run_tests.sh"
