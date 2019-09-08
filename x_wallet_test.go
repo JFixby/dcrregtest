@@ -563,8 +563,6 @@ func TestGetBalance(t *testing.T) {
 	}
 }
 
-
-
 func TestListAccounts(t *testing.T) {
 	// Skip tests when running with -short
 

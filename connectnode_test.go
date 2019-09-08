@@ -9,7 +9,6 @@ import (
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
 	"testing"
-
 )
 
 func TestConnectNode(t *testing.T) {

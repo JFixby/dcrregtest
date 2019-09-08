@@ -33,7 +33,7 @@ func TestJoinBlocks(t *testing.T) {
 	nodeSlice := []*coinharness.Harness{r, h}
 	blocksSynced := make(chan struct{})
 	go func() {
-		if err := coinharness.JoinNodes(dcrjson.GRMAll,nodeSlice, coinharness.Blocks); err != nil {
+		if err := coinharness.JoinNodes(dcrjson.GRMAll, nodeSlice, coinharness.Blocks); err != nil {
 			t.Fatalf("unable to join node on blocks: %v", err)
 		}
 		blocksSynced <- struct{}{}
@@ -93,7 +93,7 @@ func TestJoinMempools(t *testing.T) {
 
 	// Both mempools should be considered synced as they are empty.
 	// Therefore, this should return instantly.
-	if err := coinharness.JoinNodes(dcrjson.GRMAll,nodeSlice, coinharness.Mempools); err != nil {
+	if err := coinharness.JoinNodes(dcrjson.GRMAll, nodeSlice, coinharness.Mempools); err != nil {
 		t.Fatalf("unable to join node on mempools: %v", err)
 	}
 
@@ -147,7 +147,7 @@ func TestJoinMempools(t *testing.T) {
 	// should be blocked on the JoinNodes call.
 	poolsSynced := make(chan struct{})
 	go func() {
-		if err := coinharness.JoinNodes(dcrjson.GRMAll,nodeSlice, coinharness.Mempools); err != nil {
+		if err := coinharness.JoinNodes(dcrjson.GRMAll, nodeSlice, coinharness.Mempools); err != nil {
 			t.Fatalf("unable to join node on mempools: %v", err)
 		}
 		poolsSynced <- struct{}{}
@@ -163,7 +163,7 @@ func TestJoinMempools(t *testing.T) {
 	if err := coinharness.ConnectNode(h, r, rpcclient.ANAdd); err != nil {
 		t.Fatalf("unable to connect harnesses: %v", err)
 	}
-	if err := coinharness.JoinNodes(dcrjson.GRMAll,nodeSlice, coinharness.Blocks); err != nil {
+	if err := coinharness.JoinNodes(dcrjson.GRMAll, nodeSlice, coinharness.Blocks); err != nil {
 		t.Fatalf("unable to join node on blocks: %v", err)
 	}
 
