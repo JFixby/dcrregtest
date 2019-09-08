@@ -17,12 +17,12 @@ func TestGetBlockCount(t *testing.T) {
 	//}
 	r := ObtainHarness(mainHarnessName)
 	// Save the current count.
-	currentCount, err := r.NodeRPCClient().(*rpcclient.Client).GetBlockCount()
+	currentCount, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlockCount()
 	if err != nil {
 		t.Fatalf("Unable to get block count: %v", err)
 	}
 
-	if _, err := r.NodeRPCClient().(*rpcclient.Client).Generate(1); err != nil {
+	if _, err := r.NodeRPCClient().Generate(1); err != nil {
 		t.Fatalf("Unable to generate block: %v", err)
 	}
 

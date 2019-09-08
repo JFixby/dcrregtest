@@ -8,6 +8,7 @@ package dcrregtest
 import (
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
+	"github.com/jfixby/dcrharness"
 	"testing"
 
 	"github.com/decred/dcrd/chaincfg/chainhash"
@@ -31,7 +32,7 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainha
 	}
 	output := wire.NewTxOut(int64(amt), addrScript)
 	arg := &coinharness.SendOutputsArgs{
-		Outputs: []coinharness.OutputTx{output},
+		Outputs: []coinharness.OutputTx{&dcrharness.OutputTx{output}},
 		FeeRate: 10,
 	}
 	txid, err := r.Wallet.SendOutputs(arg)
@@ -42,7 +43,7 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainha
 }
 
 func assertTxMined(t *testing.T, r *coinharness.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
-	block, err := r.NodeRPCClient().(*rpcclient.Client).GetBlock(blockHash)
+	block, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlock(blockHash)
 	if err != nil {
 		t.Fatalf("unable to get block: %v", err)
 	}
@@ -89,7 +90,7 @@ func TestSendOutputs(t *testing.T) {
 
 	// Generate a single block, the transaction the wallet created should
 	// be found in this block.
-	blockHashes, err := r.NodeRPCClient().(*rpcclient.Client).Generate(1)
+	blockHashes, err := r.NodeRPCClient().Generate(1)
 	if err != nil {
 		t.Fatalf("unable to generate single block: %v", err)
 	}
@@ -98,7 +99,7 @@ func TestSendOutputs(t *testing.T) {
 	// Next, generate a spend much greater than the block reward. This
 	// transaction should also have been mined properly.
 	txid = genSpend(t, r, dcrutil.Amount(1000*dcrutil.AtomsPerCoin))
-	blockHashes, err = r.NodeRPCClient().(*rpcclient.Client).Generate(1)
+	blockHashes, err = r.NodeRPCClient().Generate(1)
 	if err != nil {
 		t.Fatalf("unable to generate single block: %v", err)
 	}
@@ -106,7 +107,7 @@ func TestSendOutputs(t *testing.T) {
 
 	// Generate another block to ensure the transaction is removed from the
 	// mempool.
-	if _, err := r.NodeRPCClient().(*rpcclient.Client).Generate(1); err != nil {
+	if _, err := r.NodeRPCClient().Generate(1); err != nil {
 		t.Fatalf("unable to generate block: %v", err)
 	}
 }

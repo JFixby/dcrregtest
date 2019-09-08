@@ -17,7 +17,7 @@ func TestGetBlockHash(t *testing.T) {
 	//}
 	r := ObtainHarness(mainHarnessName)
 	// Create a new block connecting to the current tip.
-	generatedBlockHashes, err := r.NodeRPCClient().(*rpcclient.Client).Generate(1)
+	generatedBlockHashes, err := r.NodeRPCClient().Generate(1)
 	if err != nil {
 		t.Fatalf("Unable to generate block: %v", err)
 	}
