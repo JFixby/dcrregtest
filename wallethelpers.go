@@ -2,6 +2,7 @@ package dcrregtest
 
 import (
 	"fmt"
+	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/jfixby/coinharness"
 	"github.com/jfixby/pin"
 	"math"
@@ -109,28 +110,28 @@ func getMiningAddr(walletClient *rpcclient.Client) dcrutil.Address {
 	return miningAddr
 }
 
-//// GenerateBlock is a helper function to ensure that the chain has actually
-//// incremented due to FORK blocks after stake voting height that may occur.
-//func (h *coinharness.Harness) GenerateBlock(startHeight uint32) ([]*chainhash.Hash, error) {
-//	blockHashes, err := h.NodeRPCClient().Internal().(*rpcclient.Client).Generate(1)
-//	if err != nil {
-//		return nil, errors.Errorf("unable to generate single block: %v", err)
-//	}
-//	blockHeader, err := h.NodeRPCClient().Internal().(*rpcclient.Client).GetBlockHeader(blockHashes[0])
-//	if err != nil {
-//		return nil, errors.Errorf("unable to get block header: %v", err)
-//	}
-//	newHeight := blockHeader.Height
-//	for newHeight == startHeight {
-//		blockHashes, err = h.NodeRPCClient().Internal().(*rpcclient.Client).Generate(1)
-//		if err != nil {
-//			return nil, errors.Errorf("unable to generate single block: %v", err)
-//		}
-//		blockHeader, err = h.NodeRPCClient().Internal().(*rpcclient.Client).GetBlockHeader(blockHashes[0])
-//		if err != nil {
-//			return nil, errors.Errorf("unable to get block header: %v", err)
-//		}
-//		newHeight = blockHeader.Height
-//	}
-//	return blockHashes, nil
-//}
+// GenerateBlock is a helper function to ensure that the chain has actually
+// incremented due to FORK blocks after stake voting height that may occur.
+func GenerateBlock(h *coinharness.Harness, startHeight uint32) ([]*chainhash.Hash, error) {
+	blockHashes, err := h.NodeRPCClient().Internal().(*rpcclient.Client).Generate(1)
+	if err != nil {
+		return nil, errors.Errorf("unable to generate single block: %v", err)
+	}
+	blockHeader, err := h.NodeRPCClient().Internal().(*rpcclient.Client).GetBlockHeader(blockHashes[0])
+	if err != nil {
+		return nil, errors.Errorf("unable to get block header: %v", err)
+	}
+	newHeight := blockHeader.Height
+	for newHeight == startHeight {
+		blockHashes, err = h.NodeRPCClient().Internal().(*rpcclient.Client).Generate(1)
+		if err != nil {
+			return nil, errors.Errorf("unable to generate single block: %v", err)
+		}
+		blockHeader, err = h.NodeRPCClient().Internal().(*rpcclient.Client).GetBlockHeader(blockHashes[0])
+		if err != nil {
+			return nil, errors.Errorf("unable to get block header: %v", err)
+		}
+		newHeight = blockHeader.Height
+	}
+	return blockHashes, nil
+}

@@ -11,6 +11,7 @@ import (
 	"github.com/decred/dcrd/wire"
 	"github.com/decred/dcrwallet/wallet"
 	"github.com/jfixby/coinharness"
+	"github.com/google/go-cmp/cmp"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -210,7 +211,7 @@ func TestValidateAddress(t *testing.T) {
 	devSubPkScript := chaincfg.SimNetParams.OrganizationPkScript // "ScuQxvveKGfpG1ypt6u27F99Anf7EW3cqhq"
 	devSubPkScrVer := chaincfg.SimNetParams.OrganizationPkScriptVersion
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(
-		devSubPkScrVer, devSubPkScript, r.Node.Network())
+		devSubPkScrVer, devSubPkScript, r.Node.Network().(*chaincfg.Params))
 	if err != nil {
 		t.Fatal("Failed to extract addresses from PkScript:", err)
 	}
@@ -242,7 +243,7 @@ func TestValidateAddress(t *testing.T) {
 				t.Fatal(err)
 			}
 			// Verify that address is for current network
-			if !addr.IsForNet(r.Node.Network()) {
+			if !addr.IsForNet(r.Node.Network().(*chaincfg.Params)) {
 				t.Fatalf(
 					"Address[%d] not for active network (%s), <%s>",
 					i,
@@ -517,7 +518,7 @@ func TestGetBalance(t *testing.T) {
 	}
 
 	// Test vanilla GetBalance()
-	amtGetBalance, err := wcl.GetBalance("default")
+	amtGetBalance, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetBalance("default")
 	if err != nil {
 		t.Fatalf("GetBalance failed: %v", err)
 	}
@@ -771,7 +772,7 @@ func TestListUnspent(t *testing.T) {
 	}
 	// The Address field is broken, including only one address, so don't use it
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(
-		txscript.DefaultScriptVersion, PkScript, r.Node.Network())
+		txscript.DefaultScriptVersion, PkScript, r.Node.Network().(*chaincfg.Params))
 	if err != nil {
 		t.Fatal("Failed to extract addresses from PkScript:", err)
 	}
@@ -820,7 +821,7 @@ func TestListUnspent(t *testing.T) {
 	// MsgTx().TxIn[:].ValueIn values.
 
 	// Get *dcrutil.Tx of send to check the inputs
-	rawTx, err := r.NodeRPCClient().GetRawTransaction(txid)
+	rawTx, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetRawTransaction(txid)
 	if err != nil {
 		t.Fatalf("getrawtransaction failed: %v", err)
 	}
@@ -911,7 +912,7 @@ func TestSendToAddress(t *testing.T) {
 	//
 	// The spending transaction has to be off the tip block for the previous
 	// outpoint to be spent, out of the UTXO set. Generate another block.
-	_, err = r.GenerateBlock(block.MsgBlock().Header.Height)
+	_, err = GenerateBlock(r, block.MsgBlock().Header.Height)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -983,7 +984,7 @@ func TestSendFrom(t *testing.T) {
 	}
 
 	// SendFromMinConf 1000 to addr
-	txid, err :=r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, amountToSend, 0)
+	txid, err := r.WalletRPCClient().Internal().(*rpcclient.Client).SendFromMinConf("default", addr, amountToSend, 0)
 	if err != nil {
 		t.Fatalf("sendfromminconf failed: %v", err)
 	}
@@ -2295,7 +2296,7 @@ func newBlockAt(currentHeight uint32, r *coinharness.Harness,
 func newBlockAtQuick(currentHeight uint32, r *coinharness.Harness,
 	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
 
-	blockHashes, err := r.GenerateBlock(currentHeight)
+	blockHashes, err := GenerateBlock(r, currentHeight)
 	if err != nil {
 		t.Fatalf("Unable to generate single block: %v", err)
 	}
