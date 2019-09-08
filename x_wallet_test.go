@@ -1267,7 +1267,7 @@ func TestSendMany(t *testing.T) {
 func TestListTransactions(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(TestListTransactionsHarnessTag)
+	r := ObtainWalletHarness(t.Name() + "-harness")
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -2030,7 +2030,7 @@ func TestPurchaseTickets(t *testing.T) {
 func TestGetStakeInfo(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainWalletHarness(TestGetStakeInfoHarnessTag)
+	r := ObtainWalletHarness(t.Name() + "-harness")
 
 	// Compare stake difficulty from getstakeinfo with getstakeinfo
 	sdiff, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
