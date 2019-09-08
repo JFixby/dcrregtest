@@ -14,9 +14,9 @@ import (
 )
 
 // Create a test chain with the desired number of mature coinbase outputs
-func generateTestChain(numToGenerate uint32, node *rpcclient.Client) error {
+func generateTestChain(numToGenerate int64, node *rpcclient.Client) error {
 	fmt.Printf("Generating %v blocks...\n", numToGenerate)
-	_, err := node.Generate(numToGenerate)
+	_, err := node.Generate(uint32(numToGenerate))
 	if err != nil {
 		return err
 	}

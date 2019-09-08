@@ -25,7 +25,7 @@ func TestMemWalletReorg(t *testing.T) {
 	// re-org on this local h.
 	h := testSetup.Regnet5.NewInstance(t.Name() + ".4").(*coinharness.Harness)
 	defer testSetup.Regnet5.Dispose(h)
-	h.Wallet.Sync()
+	h.Wallet.Sync(testSetup.Regnet5.NumMatureOutputs)
 
 	expectedBalance := dcrutil.Amount(1200 * dcrutil.AtomsPerCoin)
 	walletBalance := h.Wallet.ConfirmedBalance().(dcrutil.Amount)

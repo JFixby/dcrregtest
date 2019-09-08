@@ -30,7 +30,7 @@ type ChainWithMatureOutputsSpawner struct {
 	DebugWalletOutput bool
 
 	// NumMatureOutputs sets requirement for the generated test chain
-	NumMatureOutputs uint32
+	NumMatureOutputs int64
 
 	NodeFactory   coinharness.TestNodeFactory
 	WalletFactory coinharness.TestWalletFactory

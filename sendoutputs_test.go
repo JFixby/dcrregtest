@@ -9,6 +9,7 @@ import (
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
 	"github.com/jfixby/dcrharness"
+	"github.com/jfixby/pin"
 	"testing"
 
 	"github.com/decred/dcrd/chaincfg/chainhash"
@@ -83,7 +84,9 @@ func TestSendOutputs(t *testing.T) {
 	//	t.Skip("Skipping RPC harness tests in short mode")
 	//}
 	r := ObtainHarness("TestSendOutputs")
-	r.Wallet.Sync()
+	_, H, e := r.NodeRPCClient().GetBestBlock()
+	pin.CheckTestSetupMalfunction(e)
+	r.Wallet.Sync(H)
 	// First, generate a small spend which will require only a single
 	// input.
 	txid := genSpend(t, r, dcrutil.Amount(5*dcrutil.AtomsPerCoin))
