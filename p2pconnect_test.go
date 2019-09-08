@@ -25,5 +25,5 @@ func TestP2PConnect(t *testing.T) {
 
 	// The main harness should show up in our local harness' peer's list,
 	// and vice verse.
-	assertConnectedTo(t, harness, r)
+	coinharness.AssertConnectedTo(t, harness, r)
 }

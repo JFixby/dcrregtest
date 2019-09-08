@@ -36,9 +36,11 @@ func TestGetBestBlock(t *testing.T) {
 	}
 
 	// Hash should be the same as the newly submitted block.
-	if !bytes.Equal(bestHash[:], generatedBlockHashes[0].(*chainhash.Hash)[:]) {
+	b1 := bestHash[:]
+	b2 := generatedBlockHashes[0].(*chainhash.Hash)[:]
+	if !bytes.Equal(b1, b2) {
 		t.Fatalf("Block hashes do not match. Returned hash %v, wanted "+
-			"hash %v", bestHash, generatedBlockHashes[0].(*chainhash.Hash)[:])
+			"hash %v", b1, b2)
 	}
 
 	// Block height should now reflect newest height.

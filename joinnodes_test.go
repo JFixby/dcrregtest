@@ -18,7 +18,12 @@ import (
 	"github.com/decred/dcrd/wire"
 )
 
-func TestJoinBlocks(t *testing.T) {
+func TestJoin(t *testing.T) {
+	checkJoinBlocks(t)
+	checkJoinMempools(t)
+}
+
+func checkJoinBlocks(t *testing.T) {
 	// Skip tests when running with -short
 	//if testing.Short() {
 	//	t.Skip("Skipping RPC harness tests in short mode")
@@ -66,7 +71,7 @@ func TestJoinBlocks(t *testing.T) {
 }
 
 // TestJoinMempools must be executed after the TestJoinBlocks
-func TestJoinMempools(t *testing.T) {
+func checkJoinMempools(t *testing.T) {
 	// Skip tests when running with -short
 	//if testing.Short() {
 	//	t.Skip("Skipping RPC harness tests in short mode")
