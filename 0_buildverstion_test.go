@@ -1,6 +1,7 @@
 package dcrregtest
 
 import (
+	"fmt"
 	"github.com/jfixby/coinharness"
 	"testing"
 )
@@ -9,18 +10,14 @@ func TestBuildVerstion(t *testing.T) {
 	//if testing.Short() {
 	//	t.Skip("Skipping RPC harness tests in short mode")
 	//}
-	pool := testSetup.Regnet25
+	pool := testSetup.Regnet0
 	r := pool.NewInstance(t.Name()).(*coinharness.Harness)
 	defer pool.Dispose(r)
 	// Create a new block connecting to the current tip.
-	version, err := r.NodeRPCClient().GetBuildVersion()
-	if err != nil {
-		t.Fatalf("Unable to get build vesion: %v", err)
-	}
-	buid_id := "b.300"
-	EXPECTED := buid_id + ".regtest"
-	if version.VersionString() != EXPECTED {
-		t.Fatalf("Wrong build vesion: <%v>, expected <%v>", version.VersionString(), EXPECTED)
+	result, err := r.NodeRPCClient().GetBuildVersion()
+	EXPECTED := "decred does not support this feature (GetBuildVersion)"
+	if fmt.Sprint(err) != EXPECTED {
+		t.Fatalf("GetBuildVersion result: <%v> <%v>, expected <%v>", result, err, EXPECTED)
 	}
 
 }
