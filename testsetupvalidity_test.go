@@ -1,17 +1,15 @@
-package pfcregtest
+package dcrregtest
 
 import (
 	"fmt"
-	"github.com/picfight/pfcutil"
+	"github.com/decred/dcrd/dcrutil"
 	"testing"
 )
 
 func TestSetupValidity(t *testing.T) {
-	//pin.D("btcdEXE", btcdEXE)
-	coins50 := pfcutil.Amount(50 /*PFC*/ * 1e8)
-	//pin.D("pfcutil.Amount(coinbaseTx.Value)", coins50)
+	coins50 := dcrutil.Amount(50 /*DCR*/ * 1e8)
 	stringVal := fmt.Sprintf("%v", coins50)
-	expectedStringVal := "50 PFC"
+	expectedStringVal := "50 DCR"
 	//pin.D("stringVal", stringVal)
 	if expectedStringVal != stringVal {
 		t.Fatalf("Incorrect coin: "+
