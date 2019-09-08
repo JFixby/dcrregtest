@@ -11,7 +11,16 @@ tests by driving a `dcrd` instance via the `RPC` interface.
 Each instance of an active harness comes equipped with a simple in-memory
 HD wallet capable of properly syncing to the generated chain, creating new
 addresses, and crafting fully signed transactions paying to an arbitrary
-set of outputs. 
+set of outputs.
 
+## Build 
+
+```
+set GO111MODULE=on
+go build ./...
+go test ./...
+ 
+ ```
+ 
  ## License
  This code is licensed under the [copyfree](http://copyfree.org) ISC License.
