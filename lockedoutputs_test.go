@@ -29,7 +29,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate new address: %v", err)
 	}
-	pkScript, err := txscript.PayToAddrScript(addr.(dcrutil.Address))
+	pkScript, err := txscript.PayToAddrScript(addr.Internal().(dcrutil.Address))
 	if err != nil {
 		t.Fatalf("unable to create script: %v", err)
 	}

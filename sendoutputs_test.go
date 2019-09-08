@@ -26,7 +26,7 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainha
 
 	// Next, send amt to this address, spending from one of our
 	// mature coinbase outputs.
-	addrScript, err := txscript.PayToAddrScript(addr.(dcrutil.Address))
+	addrScript, err := txscript.PayToAddrScript(addr.Internal().(dcrutil.Address))
 	if err != nil {
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}

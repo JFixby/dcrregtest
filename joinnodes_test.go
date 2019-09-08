@@ -103,7 +103,7 @@ func TestJoinMempools(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate address: %v", err)
 	}
-	addrScript, err := txscript.PayToAddrScript(addr.(dcrutil.Address))
+	addrScript, err := txscript.PayToAddrScript(addr.Internal().(dcrutil.Address))
 	if err != nil {
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
