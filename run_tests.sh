@@ -36,8 +36,8 @@ testrepo () {
   GO=go
 
   $GO version
-  dcrd --version
-  dcrwallet --version
+  #dcrd --version
+  #dcrwallet --version
 
   # binary needed for RPC tests
   env CC=gcc $GO build
