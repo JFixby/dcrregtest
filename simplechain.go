@@ -62,6 +62,8 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 	seedSalt := extractSeedSaltFromHarnessName(harnessName)
 
 	harnessFolder := filepath.Join(testSetup.WorkingDir, harnessFolderName)
+	walletFolder := filepath.Join(harnessFolder, "wallet")
+	nodeFolder := filepath.Join(harnessFolder, "node")
 
 	p2p := testSetup.NetPortManager.ObtainPort()
 	nodeRPC := testSetup.NetPortManager.ObtainPort()
@@ -76,16 +78,30 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 		NodeRPCHost: localhost,
 		NodeRPCPort: nodeRPC,
 
+		NodeUser:     "node.user",
+		NodePassword: "node.pass",
+
 		ActiveNet: testSetup.ActiveNet,
 
-		WorkingDir: harnessFolder,
+		WorkingDir: nodeFolder,
 	}
 
 	walletConfig := &coinharness.TestWalletConfig{
-		Seed:          dcrharness.NewTestSeed(seedSalt),
+		Seed:        dcrharness.NewTestSeed(seedSalt),
+		NodeRPCHost: localhost,
+		NodeRPCPort: nodeRPC,
+
 		WalletRPCHost: localhost,
 		WalletRPCPort: walletRPC,
-		ActiveNet:     testSetup.ActiveNet,
+
+		NodeUser:     "node.user",
+		NodePassword: "node.pass",
+
+		WalletUser:     "wallet.user",
+		WalletPassword: "wallet.pass",
+
+		ActiveNet:  testSetup.ActiveNet,
+		WorkingDir: walletFolder,
 	}
 
 	harness := &coinharness.Harness{
@@ -94,6 +110,8 @@ func (testSetup *ChainWithMatureOutputsSpawner) NewInstance(harnessName string) 
 		Wallet:     testSetup.WalletFactory.NewWallet(walletConfig),
 		WorkingDir: harnessFolder,
 	}
+
+	pin.AssertTrue("Networks match", harness.Node.Network() == harness.Wallet.Network())
 
 	nodeNet := harness.Node.Network()
 	walletNet := harness.Wallet.Network()

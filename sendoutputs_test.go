@@ -94,7 +94,7 @@ func TestSendOutputs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate single block: %v", err)
 	}
-	assertTxMined(t, r, txid, blockHashes[0])
+	assertTxMined(t, r, txid, blockHashes[0].(*chainhash.Hash))
 
 	// Next, generate a spend much greater than the block reward. This
 	// transaction should also have been mined properly.
@@ -103,7 +103,7 @@ func TestSendOutputs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate single block: %v", err)
 	}
-	assertTxMined(t, r, txid, blockHashes[0])
+	assertTxMined(t, r, txid, blockHashes[0].(*chainhash.Hash))
 
 	// Generate another block to ensure the transaction is removed from the
 	// mempool.

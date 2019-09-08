@@ -7,13 +7,14 @@ package dcrregtest
 
 import (
 	"fmt"
+	"github.com/decred/dcrd/chaincfg"
+	"github.com/decred/dcrd/dcrutil"
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
 	"github.com/jfixby/pin"
+	"github.com/jfixby/pin/commandline"
 	"strconv"
 	"strings"
-
-	"github.com/decred/dcrd/dcrutil"
 )
 
 // DeploySimpleChain defines harness setup sequence for this package:
@@ -25,7 +26,9 @@ import (
 func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *coinharness.Harness) {
 	pin.AssertNotEmpty("harness name", h.Name)
 	fmt.Println("Deploying Harness[" + h.Name + "]")
-
+	createFlag := true ||
+		h.Node.Network() == &chaincfg.SimNetParams ||
+		h.Node.Network() == &chaincfg.RegNetParams
 	// launch a fresh h (assumes h working dir is empty)
 	{
 		args := &launchArguments{
@@ -33,14 +36,30 @@ func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *coinharness.
 			DebugWalletOutput:  testSetup.DebugWalletOutput,
 			NodeExtraArguments: testSetup.NodeStartExtraArguments,
 		}
+		if createFlag {
+			args.WalletExtraArguments = make(map[string]interface{})
+			args.WalletExtraArguments["createtemp"] = commandline.NoArgumentValue
+		}
 		launchHarnessSequence(h, args)
 	}
 
 	// Get a new address from the WalletTestServer
 	// to be set with node --miningaddr
+	var address coinharness.Address
+	var err error
 	{
-		address, err := h.Wallet.NewAddress(nil)
-		pin.CheckTestSetupMalfunction(err)
+		for {
+			address, err = h.Wallet.NewAddress(nil)
+			if err != nil {
+				pin.D("address", address)
+				pin.D("error", err)
+				pin.Sleep(1000)
+			} else {
+				break
+			}
+		}
+
+		//pin.CheckTestSetupMalfunction(err)
 		h.MiningAddress = address
 
 		pin.AssertNotNil("MiningAddress", h.MiningAddress)
@@ -58,13 +77,17 @@ func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *coinharness.
 			DebugWalletOutput:  testSetup.DebugWalletOutput,
 			NodeExtraArguments: testSetup.NodeStartExtraArguments,
 		}
+		if createFlag {
+			args.WalletExtraArguments = make(map[string]interface{})
+			args.WalletExtraArguments["createtemp"] = commandline.NoArgumentValue
+		}
 		launchHarnessSequence(h, args)
 	}
 
 	{
 		if testSetup.NumMatureOutputs > 0 {
 			numToGenerate := uint32(testSetup.ActiveNet.CoinbaseMaturity) + testSetup.NumMatureOutputs
-			err := generateTestChain(numToGenerate, h.NodeRPCClient().(*rpcclient.Client))
+			err := generateTestChain(numToGenerate, h.NodeRPCClient().Internal().(*rpcclient.Client))
 			pin.CheckTestSetupMalfunction(err)
 		}
 		// wait for the WalletTestServer to sync up to the current height
@@ -75,10 +98,11 @@ func DeploySimpleChain(testSetup *ChainWithMatureOutputsSpawner, h *coinharness.
 
 // local struct to bundle launchHarnessSequence function arguments
 type launchArguments struct {
-	DebugNodeOutput    bool
-	DebugWalletOutput  bool
-	MiningAddress      *dcrutil.Address
-	NodeExtraArguments map[string]interface{}
+	DebugNodeOutput      bool
+	DebugWalletOutput    bool
+	MiningAddress        *dcrutil.Address
+	NodeExtraArguments   map[string]interface{}
+	WalletExtraArguments map[string]interface{}
 }
 
 // launchHarnessSequence
@@ -86,20 +110,23 @@ func launchHarnessSequence(h *coinharness.Harness, args *launchArguments) {
 	node := h.Node
 	wallet := h.Wallet
 
-	node.SetDebugNodeOutput(args.DebugNodeOutput)
-	node.SetMiningAddress(h.MiningAddress)
-	node.SetExtraArguments(args.NodeExtraArguments)
-
-	node.Start()
+	sargs := &coinharness.StartNodeArgs{
+		DebugOutput:    args.DebugNodeOutput,
+		MiningAddress:  h.MiningAddress,
+		ExtraArguments: args.NodeExtraArguments,
+	}
+	node.Start(sargs)
 
 	rpcConfig := node.RPCConnectionConfig()
 
 	walletLaunchArguments := &coinharness.TestWalletStartArgs{
 		NodeRPCCertFile:          node.CertFile(),
-		DebugWalletOutput:        args.DebugWalletOutput,
+		DebugOutput:              args.DebugWalletOutput,
 		MaxSecondsToWaitOnLaunch: 90,
 		NodeRPCConfig:            rpcConfig,
+		ExtraArguments:           args.WalletExtraArguments,
 	}
+
 	wallet.Start(walletLaunchArguments)
 
 }

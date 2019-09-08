@@ -27,7 +27,7 @@ func TestGetBlockCount(t *testing.T) {
 	}
 
 	// Count should have increased by one.
-	newCount, err := r.NodeRPCClient().(*rpcclient.Client).GetBlockCount()
+	newCount, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlockCount()
 	if err != nil {
 		t.Fatalf("Unable to get block count: %v", err)
 	}

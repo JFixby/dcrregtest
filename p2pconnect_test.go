@@ -1,6 +1,7 @@
 package dcrregtest
 
 import (
+	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
 	"testing"
 )
@@ -18,7 +19,7 @@ func TestP2PConnect(t *testing.T) {
 
 	// Establish a p2p connection from our new local harness to the main
 	// harness.
-	if err := ConnectNode(harness, r); err != nil {
+	if err := coinharness.ConnectNode(harness, r, rpcclient.ANAdd); err != nil {
 		t.Fatalf("unable to connect local to main harness: %v", err)
 	}
 

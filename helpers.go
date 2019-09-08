@@ -7,137 +7,11 @@ package dcrregtest
 
 import (
 	"fmt"
+	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
-	"github.com/jfixby/pin"
-	"reflect"
 	"strconv"
 	"testing"
-	"time"
-
-	"github.com/decred/dcrd/dcrjson"
-	"github.com/decred/dcrd/rpcclient"
 )
-
-// JoinType is an enum representing a particular type of "node join". A node
-// join is a synchronization tool used to wait until a subset of nodes have a
-// consistent state with respect to an attribute.
-type JoinType uint8
-
-const (
-	// Blocks is a JoinType which waits until all nodes share the same
-	// block height.
-	Blocks JoinType = iota
-
-	// Mempools is a JoinType which blocks until all nodes have identical
-	// mempool.
-	Mempools
-)
-
-// JoinNodes is a synchronization tool used to block until all passed nodes are
-// fully synced with respect to an attribute. This function will block for a
-// period of time, finally returning once all nodes are synced according to the
-// passed JoinType. This function be used to to ensure all active test
-// harnesses are at a consistent state before proceeding to an assertion or
-// check within rpc tests.
-func JoinNodes(nodes []*coinharness.Harness, joinType JoinType) error {
-	switch joinType {
-	case Blocks:
-		return syncBlocks(nodes)
-	case Mempools:
-		return syncMempools(nodes)
-	}
-	return nil
-}
-
-// syncMempools blocks until all nodes have identical mempools.
-func syncMempools(nodes []*coinharness.Harness) error {
-	poolsMatch := false
-
-	for !poolsMatch {
-	retry:
-		firstPool, err := nodes[0].NodeRPCClient().(*rpcclient.Client).GetRawMempool(dcrjson.GRMAll)
-		if err != nil {
-			return err
-		}
-
-		// If all nodes have an identical mempool with respect to the
-		// first node, then we're done. Otherwise, drop back to the top
-		// of the loop and retry after a short wait period.
-		for _, node := range nodes[1:] {
-			nodePool, err := node.NodeRPCClient().(*rpcclient.Client).GetRawMempool(dcrjson.GRMAll)
-			if err != nil {
-				return err
-			}
-
-			if !reflect.DeepEqual(firstPool, nodePool) {
-				time.Sleep(time.Millisecond * 100)
-				goto retry
-			}
-		}
-
-		poolsMatch = true
-	}
-
-	return nil
-}
-
-// syncBlocks blocks until all nodes report the same block height.
-func syncBlocks(nodes []*coinharness.Harness) error {
-	blocksMatch := false
-
-	for !blocksMatch {
-	retry:
-		blockHeights := make(map[int64]struct{})
-
-		for _, node := range nodes {
-			blockHeight, err := node.NodeRPCClient().(*rpcclient.Client).GetBlockCount()
-			if err != nil {
-				return err
-			}
-
-			blockHeights[blockHeight] = struct{}{}
-			if len(blockHeights) > 1 {
-				time.Sleep(time.Millisecond * 100)
-				goto retry
-			}
-		}
-
-		blocksMatch = true
-	}
-
-	return nil
-}
-
-// ConnectNode establishes a new peer-to-peer connection between the "from"
-// harness and the "to" harness.  The connection made is flagged as persistent,
-// therefore in the case of disconnects, "from" will attempt to reestablish a
-// connection to the "to" harness.
-func ConnectNode(from *coinharness.Harness, to *coinharness.Harness) error {
-	peerInfo, err := from.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
-	if err != nil {
-		return err
-	}
-	numPeers := len(peerInfo)
-
-	targetAddr := to.P2PAddress()
-	if err := from.NodeRPCClient().(*rpcclient.Client).AddNode(targetAddr, rpcclient.ANAdd); err != nil {
-		return err
-	}
-
-	// Block until a new connection has been established.
-	for attempts := 5; attempts > 0; attempts-- {
-		peerInfo, err = from.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
-		if err != nil {
-			return err
-		}
-		if len(peerInfo) > numPeers {
-			return nil
-		}
-		pin.Sleep(1000)
-	}
-
-	return fmt.Errorf("failed to connet node")
-}
 
 // Create a test chain with the desired number of mature coinbase outputs
 func generateTestChain(numToGenerate uint32, node *rpcclient.Client) error {
@@ -151,7 +25,7 @@ func generateTestChain(numToGenerate uint32, node *rpcclient.Client) error {
 }
 
 func assertConnectedTo(t *testing.T, nodeA *coinharness.Harness, nodeB *coinharness.Harness) {
-	nodeAPeers, err := nodeA.NodeRPCClient().(*rpcclient.Client).GetPeerInfo()
+	nodeAPeers, err := nodeA.NodeRPCClient().Internal().(*rpcclient.Client).GetPeerInfo()
 	if err != nil {
 		t.Fatalf("unable to get nodeA's peer info")
 	}

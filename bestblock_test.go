@@ -7,6 +7,7 @@ package dcrregtest
 
 import (
 	"bytes"
+	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrd/rpcclient"
 	"testing"
 )
@@ -35,9 +36,9 @@ func TestGetBestBlock(t *testing.T) {
 	}
 
 	// Hash should be the same as the newly submitted block.
-	if !bytes.Equal(bestHash[:], generatedBlockHashes[0][:]) {
+	if !bytes.Equal(bestHash[:], generatedBlockHashes[0].(*chainhash.Hash)[:]) {
 		t.Fatalf("Block hashes do not match. Returned hash %v, wanted "+
-			"hash %v", bestHash, generatedBlockHashes[0][:])
+			"hash %v", bestHash, generatedBlockHashes[0].(*chainhash.Hash)[:])
 	}
 
 	// Block height should now reflect newest height.

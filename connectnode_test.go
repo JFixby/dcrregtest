@@ -6,6 +6,7 @@
 package dcrregtest
 
 import (
+	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
 	"testing"
 

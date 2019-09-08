@@ -7,12 +7,11 @@ package dcrregtest
 
 import (
 	"fmt"
-	"github.com/jfixby/coinharness"
 	"github.com/jfixby/dcrharness/memwallet"
 	"github.com/jfixby/dcrharness/nodecls"
+	"github.com/jfixby/dcrharness/walletcls"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
-	"github.com/jfixby/pin/fileops"
 	"github.com/jfixby/pin/gobuilder"
 	"io/ioutil"
 	"os"
@@ -33,6 +32,9 @@ type SimpleTestSetup struct {
 	// multiple harness instances may be run concurrently, to allow for testing
 	// complex scenarios involving multiple nodes.
 	harnessPool *pin.Pool
+
+	// Mainnet creates a mainnet test harness
+	Mainnet0 *ChainWithMatureOutputsSpawner
 
 	// Regnet25 creates a regnet test harness
 	// with 25 mature outputs.
@@ -58,12 +60,6 @@ type SimpleTestSetup struct {
 	// with only the genesis block.
 	Simnet0 *ChainWithMatureOutputsSpawner
 
-	// ConsoleNodeFactory produces a new TestNode instance upon request
-	NodeFactory coinharness.TestNodeFactory
-
-	// WalletFactory produces a new TestWallet instance upon request
-	WalletFactory coinharness.TestWalletFactory
-
 	// WorkingDir defines test setup working dir
 	WorkingDir *pin.TempDirHandler
 }
@@ -80,21 +76,28 @@ func (setup *SimpleTestSetup) TearDown() {
 // Setup deploys this test setup
 func Setup() *SimpleTestSetup {
 	setup := &SimpleTestSetup{
-		WalletFactory: &memwallet.WalletFactory{},
-		//Network:       &chaincfg.RegNetParams,
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	dcrdEXE := &commandline.ExplicitExecutablePathString{PathString: "dcrd"}
+	memWalletFactory := &memwallet.MemWalletFactory{}
 
-	//buildName := "dcrd"
-	//nodeProjectGoPath := findDCRDProjectPath()
-
-	//setup.nodeGoBuilder = setupBuild(buildName, setup.WorkingDir.Path(), nodeProjectGoPath)
-	setup.NodeFactory = &nodecls.ConsoleNodeFactory{
-		NodeExecutablePathProvider: dcrdEXE,
+	wEXE := &commandline.ExplicitExecutablePathString{
+		PathString: "dcrwallet",
 	}
-	//setup.nodeGoBuilder.Build()
+	consoleWalletFactory := &walletcls.ConsoleWalletFactory{
+		WalletExecutablePathProvider: wEXE,
+	}
+
+	regnetWalletFactory := memWalletFactory
+	mainnetWalletFactory := memWalletFactory
+	simnetWalletFactory := consoleWalletFactory
+
+	dEXE := &commandline.ExplicitExecutablePathString{
+		PathString: "dcrd",
+	}
+	nodeFactory := &nodecls.ConsoleNodeFactory{
+		NodeExecutablePathProvider: dEXE,
+	}
 
 	portManager := &LazyPortManager{
 		BasePort: 20000,
@@ -109,9 +112,20 @@ func Setup() *SimpleTestSetup {
 		DebugWalletOutput: true,
 		NumMatureOutputs:  25,
 		NetPortManager:    portManager,
-		WalletFactory:     setup.WalletFactory,
-		NodeFactory:       setup.NodeFactory,
+		WalletFactory:     regnetWalletFactory,
+		NodeFactory:       nodeFactory,
 		ActiveNet:         &chaincfg.RegNetParams,
+	}
+
+	setup.Mainnet0 = &ChainWithMatureOutputsSpawner{
+		WorkingDir:        setup.WorkingDir.Path(),
+		DebugNodeOutput:   true,
+		DebugWalletOutput: true,
+		NumMatureOutputs:  0,
+		NetPortManager:    portManager,
+		WalletFactory:     mainnetWalletFactory,
+		NodeFactory:       nodeFactory,
+		ActiveNet:         &chaincfg.MainNetParams,
 	}
 
 	// Deploy harness spawner with generated
@@ -122,8 +136,8 @@ func Setup() *SimpleTestSetup {
 		DebugWalletOutput: true,
 		NumMatureOutputs:  5,
 		NetPortManager:    portManager,
-		WalletFactory:     setup.WalletFactory,
-		NodeFactory:       setup.NodeFactory,
+		WalletFactory:     regnetWalletFactory,
+		NodeFactory:       nodeFactory,
 		ActiveNet:         &chaincfg.RegNetParams,
 	}
 
@@ -133,8 +147,8 @@ func Setup() *SimpleTestSetup {
 		DebugWalletOutput: true,
 		NumMatureOutputs:  1,
 		NetPortManager:    portManager,
-		WalletFactory:     setup.WalletFactory,
-		NodeFactory:       setup.NodeFactory,
+		WalletFactory:     regnetWalletFactory,
+		NodeFactory:       nodeFactory,
 		ActiveNet:         &chaincfg.RegNetParams,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
@@ -147,8 +161,8 @@ func Setup() *SimpleTestSetup {
 		DebugWalletOutput: true,
 		NumMatureOutputs:  1,
 		NetPortManager:    portManager,
-		WalletFactory:     setup.WalletFactory,
-		NodeFactory:       setup.NodeFactory,
+		WalletFactory:     simnetWalletFactory,
+		NodeFactory:       nodeFactory,
 		ActiveNet:         &chaincfg.SimNetParams,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
@@ -158,35 +172,29 @@ func Setup() *SimpleTestSetup {
 	// Deploy harness spawner with empty test chain
 	setup.Regnet0 = &ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
-		DebugNodeOutput:   false,
-		DebugWalletOutput: false,
+		DebugNodeOutput:   true,
+		DebugWalletOutput: true,
 		NumMatureOutputs:  0,
 		NetPortManager:    portManager,
-		WalletFactory:     setup.WalletFactory,
-		NodeFactory:       setup.NodeFactory,
+		WalletFactory:     regnetWalletFactory,
+		NodeFactory:       nodeFactory,
 		ActiveNet:         &chaincfg.RegNetParams,
 	}
 	// Deploy harness spawner with empty test chain
 	setup.Simnet0 = &ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
-		DebugNodeOutput:   false,
-		DebugWalletOutput: false,
+		DebugNodeOutput:   true,
+		DebugWalletOutput: true,
 		NumMatureOutputs:  0,
 		NetPortManager:    portManager,
-		WalletFactory:     setup.WalletFactory,
-		NodeFactory:       setup.NodeFactory,
+		WalletFactory:     simnetWalletFactory,
+		NodeFactory:       nodeFactory,
 		ActiveNet:         &chaincfg.SimNetParams,
 	}
 
 	setup.harnessPool = pin.NewPool(setup.Regnet25)
 
 	return setup
-}
-
-func findDCRDProjectPath() string {
-	path := fileops.Abs("../../decred/dcrd")
-	pin.D("path", path)
-	return path
 }
 
 func setupWorkingDir() string {
