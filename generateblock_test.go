@@ -2,23 +2,23 @@
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
-package pfcregtest
+package dcrregtest
 
 import (
+	"github.com/decred/dcrd/chaincfg"
+	"github.com/decred/dcrd/dcrutil"
+	"github.com/decred/dcrd/txscript"
+	"github.com/decred/dcrd/wire"
 	"github.com/jfixby/coinharness"
-	"github.com/picfight/pfcd/chaincfg"
-	"github.com/picfight/pfcharness"
+	"github.com/jfixby/dcrharness"
 	"testing"
 	"time"
 
-	"github.com/picfight/pfcd/txscript"
-	"github.com/picfight/pfcd/wire"
-	"github.com/picfight/pfcutil"
 )
 
 // BlockVersion is the default block version used when generating
 // blocks.
-const BlockVersion = wire.DefaultBlockVersion
+const BlockVersion = int32(wire.TxVersion)
 
 func TestGenerateAndSubmitBlock(t *testing.T) {
 	// Skip tests when running with -short
@@ -32,17 +32,17 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate new address: %v", err)
 	}
-	pkScript, err := txscript.PayToAddrScript(addr.(pfcutil.Address))
+	pkScript, err := txscript.PayToAddrScript(addr.Internal().(dcrutil.Address))
 	if err != nil {
 		t.Fatalf("unable to create script: %v", err)
 	}
-	output := wire.NewTxOut(pfcutil.SatoshiPerPicfightcoin, pkScript)
+	output := wire.NewTxOut(dcrutil.AtomsPerCoin, pkScript)
 
 	const numTxns = 5
-	txns := make([]*pfcutil.Tx, 0, numTxns)
+	txns := make([]*dcrutil.Tx, 0, numTxns)
 	for i := 0; i < numTxns; i++ {
 		ctargs := &coinharness.CreateTransactionArgs{
-			Outputs: []coinharness.OutputTx{&pfcharness.OutputTx{output}},
+			Outputs: []coinharness.OutputTx{&dcrharness.OutputTx{output}},
 			FeeRate: 10,
 			Change:  true,
 		}
@@ -51,20 +51,20 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 			t.Fatalf("unable to create tx: %v", err)
 		}
 
-		txns = append(txns, pfcutil.NewTx(pfcharness.TransactionTxToRaw(tx)))
+		txns = append(txns, dcrutil.NewTx(dcrharness.TransactionTxToRaw(tx)))
 	}
 
 	// Now generate a block with the default block version, and a zero'd
 	// out time.
 
-	newBlockArgs := pfcharness.GenerateBlockArgs{
+	newBlockArgs := dcrharness.GenerateBlockArgs{
 		Txns:          txns,
 		BlockVersion:  BlockVersion,
 		BlockTime:     time.Time{},
-		MiningAddress: r.MiningAddress.(pfcutil.Address),
+		MiningAddress: r.MiningAddress.Internal().(dcrutil.Address),
 		Network:       r.Node.Network().(*chaincfg.Params),
 	}
-	block, err := pfcharness.GenerateAndSubmitBlock(r.NodeRPCClient(), &newBlockArgs)
+	block, err := dcrharness.GenerateAndSubmitBlock(r.NodeRPCClient(), &newBlockArgs)
 	if err != nil {
 		t.Fatalf("unable to generate block: %v", err)
 	}
@@ -87,13 +87,13 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 	timestamp := block.MsgBlock().Header.Timestamp.Add(time.Minute)
 	targetBlockVersion := int32(1337)
 
-	newBlockArgs2 := pfcharness.GenerateBlockArgs{
+	newBlockArgs2 := dcrharness.GenerateBlockArgs{
 		BlockVersion:  targetBlockVersion,
 		BlockTime:     timestamp,
-		MiningAddress: r.MiningAddress.(pfcutil.Address),
+		MiningAddress: r.MiningAddress.Internal().(dcrutil.Address),
 		Network:       r.Node.Network().(*chaincfg.Params),
 	}
-	block, err = pfcharness.GenerateAndSubmitBlock(r.NodeRPCClient(), &newBlockArgs2)
+	block, err = dcrharness.GenerateAndSubmitBlock(r.NodeRPCClient(), &newBlockArgs2)
 	if err != nil {
 		t.Fatalf("unable to generate block: %v", err)
 	}
