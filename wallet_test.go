@@ -24,7 +24,7 @@ import (
 func TestGetNewAddress(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -175,7 +175,7 @@ func TestGetNewAddress(t *testing.T) {
 func TestValidateAddress(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 	//-----------------------------------------
@@ -193,7 +193,7 @@ func TestValidateAddress(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unable to decode address %v: %v", otherAddress, err)
 	}
-	validRes, err := wcl.ValidateAddress(otherAddress)
+	validRes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ValidateAddress(otherAddress)
 	if err != nil {
 		t.Fatalf("Unable to validate address %s with secondary wallet: %v",
 			addrStr, err)
@@ -223,7 +223,7 @@ func TestValidateAddress(t *testing.T) {
 		t.Fatalf("Unable to decode address %s: %v", devSubAddrStr, err)
 	}
 
-	validRes, err = wcl.ValidateAddress(DevAddr)
+	validRes, err = r.WalletRPCClient().Internal().(*rpcclient.Client).ValidateAddress(DevAddr)
 	if err != nil {
 		t.Fatalf("Unable to validate address %s: ", devSubAddrStr)
 	}
@@ -254,7 +254,7 @@ func TestValidateAddress(t *testing.T) {
 			}
 			// ValidateAddress
 			addrStr := addr.String()
-			validRes, err := wcl.ValidateAddress(addr)
+			validRes, err := r.WalletRPCClient().Internal().(*rpcclient.Client).ValidateAddress(addr)
 			if err != nil {
 				t.Fatalf(
 					"Unable to validate address[%d] %s: %v for <%s>",
@@ -315,7 +315,7 @@ func TestValidateAddress(t *testing.T) {
 func TestWalletPassphrase(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -436,7 +436,7 @@ func TestWalletPassphrase(t *testing.T) {
 func TestGetBalance(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -563,10 +563,14 @@ func TestGetBalance(t *testing.T) {
 	}
 }
 
+func ObtainWalletHarness(s string) *coinharness.Harness {
+	panic("")
+}
+
 func TestListAccounts(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -718,7 +722,7 @@ func TestListAccounts(t *testing.T) {
 func TestListUnspent(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -870,9 +874,7 @@ func TestListUnspent(t *testing.T) {
 func TestSendToAddress(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
-	// Wallet RPC client
-	wcl := r.Wallet
+	r := ObtainWalletHarness(mainHarnessName)
 
 	// Grab a fresh address from the wallet.
 	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
@@ -945,7 +947,7 @@ func TestSendToAddress(t *testing.T) {
 func TestSendFrom(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	accountName := "sendFromTest"
 	err := r.WalletRPCClient().Internal().(*rpcclient.Client).CreateNewAccount(accountName)
 	if err != nil {
@@ -1109,7 +1111,7 @@ func TestSendFrom(t *testing.T) {
 func TestSendMany(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -1265,7 +1267,7 @@ func TestSendMany(t *testing.T) {
 func TestListTransactions(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(TestListTransactionsHarnessTag)
+	r := ObtainWalletHarness(TestListTransactionsHarnessTag)
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -1565,7 +1567,7 @@ func TestListTransactions(t *testing.T) {
 func TestGetSetRelayFee(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 
 	// dcrrpcclient does not have a getwalletfee or any direct method, so we
 	// need to use walletinfo to get.  SetTxFee can be used to set.
@@ -1667,7 +1669,7 @@ func TestGetSetRelayFee(t *testing.T) {
 func TestGetSetTicketFee(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// dcrrpcclient does not have a getticketee or any direct method, so we
 	// need to use walletinfo to get.  SetTicketFee can be used to set.
 
@@ -1765,7 +1767,7 @@ func TestGetSetTicketFee(t *testing.T) {
 func TestGetTickets(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
 
 	// Initial number of mature (live) tickets
@@ -1847,9 +1849,8 @@ func TestGetTickets(t *testing.T) {
 func TestPurchaseTickets(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
-
 
 	// Grab a fresh address from the wallet.
 	addr, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetNewAddressGapPolicy(
@@ -2029,7 +2030,7 @@ func TestPurchaseTickets(t *testing.T) {
 func TestGetStakeInfo(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(TestGetStakeInfoHarnessTag)
+	r := ObtainWalletHarness(TestGetStakeInfoHarnessTag)
 
 	// Compare stake difficulty from getstakeinfo with getstakeinfo
 	sdiff, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
@@ -2215,7 +2216,7 @@ func TestGetStakeInfo(t *testing.T) {
 func TestWalletInfo(t *testing.T) {
 	// Skip tests when running with -short
 
-	r := ObtainHarness(mainHarnessName)
+	r := ObtainWalletHarness(mainHarnessName)
 
 	// WalletInfo is tested exhaustively in other test, so only do some basic
 	// checks here
