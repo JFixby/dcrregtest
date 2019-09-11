@@ -22,7 +22,7 @@ import (
 )
 
 func TestGetNewAddress(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -173,7 +173,7 @@ func TestGetNewAddress(t *testing.T) {
 }
 
 func TestValidateAddress(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -313,7 +313,7 @@ func TestValidateAddress(t *testing.T) {
 }
 
 func TestWalletPassphrase(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -434,7 +434,7 @@ func TestWalletPassphrase(t *testing.T) {
 }
 
 func TestGetBalance(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -564,7 +564,7 @@ func TestGetBalance(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -716,7 +716,7 @@ func TestListAccounts(t *testing.T) {
 }
 
 func TestListUnspent(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -868,7 +868,7 @@ func TestListUnspent(t *testing.T) {
 }
 
 func TestSendToAddress(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 
@@ -941,7 +941,7 @@ func TestSendToAddress(t *testing.T) {
 }
 
 func TestSendFrom(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	accountName := "sendFromTest"
@@ -1105,7 +1105,7 @@ func TestSendFrom(t *testing.T) {
 }
 
 func TestSendMany(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -1261,7 +1261,7 @@ func TestSendMany(t *testing.T) {
 }
 
 func TestListTransactions(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(t.Name() + "-harness")
 	// Wallet RPC client
@@ -1561,7 +1561,7 @@ func TestListTransactions(t *testing.T) {
 }
 
 func TestGetSetRelayFee(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 
@@ -1663,7 +1663,7 @@ func TestGetSetRelayFee(t *testing.T) {
 }
 
 func TestGetSetTicketFee(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// dcrrpcclient does not have a getticketee or any direct method, so we
@@ -1761,7 +1761,7 @@ func TestGetSetTicketFee(t *testing.T) {
 }
 
 func TestGetTickets(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
@@ -1843,7 +1843,7 @@ func TestGetTickets(t *testing.T) {
 }
 
 func TestPurchaseTickets(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
@@ -2024,7 +2024,7 @@ func TestPurchaseTickets(t *testing.T) {
 
 // testGetStakeInfo gets a FRESH harness
 func TestGetStakeInfo(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(t.Name() + "-harness")
 
@@ -2210,7 +2210,7 @@ func TestGetStakeInfo(t *testing.T) {
 
 // testWalletInfo
 func TestWalletInfo(t *testing.T) {
-	// Skip tests when running with -short
+	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 
