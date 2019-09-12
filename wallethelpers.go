@@ -35,14 +35,9 @@ func mineBlock(t *testing.T, r *coinharness.Harness) {
 	if err != nil {
 		t.Fatal("Failed to GetBestBlock:", err)
 	}
-
-	count, err := syncWalletTo(r.WalletRPCClient().Internal().(*rpcclient.Client), heightAfter)
-	if err != nil {
-		t.Fatal("Failed to sync wallet to target:", err)
-	}
-
+	count := r.Wallet.Sync(heightAfter)
 	if heightAfter != count {
-		t.Fatal("Failed to sync wallet to target:", count)
+		t.Fatal("Failed to sync wallet to target:", heightAfter)
 	}
 }
 

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
-	"strconv"
 	"testing"
 )
 
@@ -42,19 +41,4 @@ func assertConnectedTo(t *testing.T, nodeA *coinharness.Harness, nodeB *coinharn
 	if !addrFound {
 		t.Fatal("nodeA not connected to nodeB")
 	}
-}
-
-// Waits for wallet to sync to the target height
-func syncWalletTo(rpcClient *rpcclient.Client, desiredHeight int64) (int64, error) {
-	var count int64
-	var err error
-	for count != desiredHeight {
-		//rpctest.Sleep(100)
-		count, err = rpcClient.GetBlockCount()
-		if err != nil {
-			return -1, err
-		}
-		fmt.Println("   sync to: " + strconv.FormatInt(count, 10))
-	}
-	return count, nil
 }
