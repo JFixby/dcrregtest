@@ -49,21 +49,17 @@ testrepo () {
   git clone --depth=50 --branch=release-v1.4 https://github.com/decred/dcrwallet.git decred/dcrwallet
   popd
 
-  export GO111MODULE=on
   $GO fmt ./...
   $GO build ./...
 
   pushd ../../decred/dcrd
-  ls
-  go install
+  $GO install
   popd
 
   pushd ../../decred/dcrwallet
-  ls
-  go install
+  $GO install
   popd
 
-  ls
   $GO test ./...
 
   echo "------------------------------------------"
