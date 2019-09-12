@@ -43,6 +43,12 @@ testrepo () {
   env CC=gcc
 
   # run tests on all modules
+
+  go get ./...
+  pushd ../../
+  ls
+  popd
+
   export GO111MODULE=on
   $GO fmt ./...
   $GO build ./...
