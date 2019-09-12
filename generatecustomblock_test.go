@@ -5,9 +5,9 @@
 package dcrregtest
 
 import (
+	"github.com/decred/dcrd/chaincfg"
 	"github.com/decred/dcrd/dcrutil"
 	"github.com/jfixby/coinharness"
-	"github.com/decred/dcrd/chaincfg"
 	"github.com/jfixby/dcrharness"
 	"testing"
 	"time"
@@ -17,10 +17,7 @@ import (
 )
 
 func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
-	// Skip tests when running with -short
-	if testing.Short() {
-		t.Skip("Skipping RPC harness tests in short mode")
-	}
+	t.SkipNow()
 	r := ObtainHarness(mainHarnessName)
 
 	// Generate a few test spend transactions.

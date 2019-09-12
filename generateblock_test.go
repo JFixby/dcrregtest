@@ -13,7 +13,6 @@ import (
 	"github.com/jfixby/dcrharness"
 	"testing"
 	"time"
-
 )
 
 // BlockVersion is the default block version used when generating
@@ -21,10 +20,7 @@ import (
 const BlockVersion = int32(wire.TxVersion)
 
 func TestGenerateAndSubmitBlock(t *testing.T) {
-	// Skip tests when running with -short
-	if testing.Short() {
-		t.Skip("Skipping RPC harness tests in short mode")
-	}
+	t.SkipNow()
 	r := ObtainHarness(mainHarnessName)
 
 	// Generate a few test spend transactions.

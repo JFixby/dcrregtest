@@ -9,10 +9,8 @@ import (
 	"github.com/decred/dcrd/dcrutil"
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/decred/dcrd/txscript"
-	"github.com/decred/dcrd/wire"
 	"github.com/decred/dcrwallet/wallet"
 	"github.com/google/go-cmp/cmp"
-	"github.com/jfixby/coinharness"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -22,123 +20,6 @@ import (
 )
 
 const defaultWalletPassphrase = "password"
-
-func TestWalletPassphrase(t *testing.T) {
-	r := ObtainWalletHarness(mainWalletHarnessName)
-	// Wallet RPC client
-	wcl := r.Wallet
-
-	// Remember to leave the wallet unlocked for any subsequent tests
-
-	// Lock the wallet since test wallet is unlocked by default
-	err := wcl.WalletLock()
-	if err != nil {
-		t.Fatal("Unable to lock wallet.")
-	}
-
-	// Check that wallet is locked
-	walletInfo, err := wcl.WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if walletInfo.Unlocked {
-		t.Fatal("WalletLock failed to lock the wallet")
-	}
-
-	// Try incorrect password
-	err = wcl.WalletUnlock("Wrong Password", 0)
-	// Check for "-14: invalid passphrase for master private key"
-	if err != nil && err.(*dcrjson.RPCError).Code !=
-		dcrjson.ErrRPCWalletPassphraseIncorrect {
-		// dcrjson.ErrWalletPassphraseIncorrect.Code
-		t.Fatalf("WalletPassphrase with INCORRECT passphrase exited with: %v",
-			err)
-	}
-
-	// Check that wallet is still locked
-	walletInfo, err = wcl.WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if walletInfo.Unlocked {
-		t.Fatal("WalletPassphrase unlocked the wallet with the wrong passphrase")
-	}
-
-	// Verify that a restricted operation like createnewaccount fails
-	accountName := "cannotCreateThisAccount"
-	err = wcl.CreateNewAccount(accountName)
-	if err == nil {
-		t.Fatal("createnewaccount succeeded on a locked wallet.")
-	}
-	// dcrjson.ErrRPCWalletUnlockNeeded
-	if !strings.HasPrefix(err.Error(),
-		strconv.Itoa(int(dcrjson.ErrRPCWalletUnlockNeeded))) {
-		t.Fatalf("createnewaccount returned error (%v) instead of %v",
-			err, dcrjson.ErrRPCWalletUnlockNeeded)
-	}
-
-	// Unlock with correct passphrase
-	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
-	if err != nil {
-		t.Fatalf("WalletPassphrase failed: %v", err)
-	}
-
-	// Check that wallet is now unlocked
-	walletInfo, err = wcl.WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if !walletInfo.Unlocked {
-		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
-	}
-
-	// Check for ErrRPCWalletAlreadyUnlocked
-	err = wcl.WalletUnlock(defaultWalletPassphrase, 0)
-	// Check for "-17: Wallet is already unlocked"
-	if err != nil && err.(*dcrjson.RPCError).Code !=
-		dcrjson.ErrRPCWalletAlreadyUnlocked {
-		t.Fatalf("WalletPassphrase failed: %v", err)
-	}
-
-	// Re-lock wallet
-	err = wcl.WalletLock()
-	if err != nil {
-		t.Fatal("Unable to lock wallet.")
-	}
-
-	// Unlock with timeout
-	timeOut := int64(6)
-	err = wcl.WalletUnlock(defaultWalletPassphrase, timeOut)
-	if err != nil {
-		t.Fatalf("WalletPassphrase failed: %v", err)
-	}
-
-	// Check that wallet is now unlocked
-	walletInfo, err = wcl.WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if !walletInfo.Unlocked {
-		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
-	}
-
-	time.Sleep(time.Duration(timeOut+2) * time.Second)
-
-	// Check that wallet is now locked
-	walletInfo, err = wcl.WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if walletInfo.Unlocked {
-		t.Fatal("Wallet still unlocked after timeout")
-	}
-
-	if err := wcl.WalletUnlock(defaultWalletPassphrase, 0); err != nil {
-		t.Fatal("Unable to unlock wallet:", err)
-	}
-
-	// TODO: Watching-only error?
-}
 
 func TestGetNewAddress(t *testing.T) {
 
@@ -2234,164 +2115,119 @@ func TestWalletInfo(t *testing.T) {
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Helper functions
+func TestWalletPassphrase(t *testing.T) {
+	r := ObtainWalletHarness(mainWalletHarnessName)
+	// Wallet RPC client
+	wcl := r.Wallet
 
-func mustGetStakeInfo(wcl *rpcclient.Client, t *testing.T) *dcrjson.GetStakeInfoResult {
-	stakeinfo, err := wcl.GetStakeInfo()
+	// Remember to leave the wallet unlocked for any subsequent tests
+
+	// Lock the wallet since test wallet is unlocked by default
+	err := wcl.WalletLock()
 	if err != nil {
-		t.Fatal("GetStakeInfo failed: ", err)
+		t.Fatal("Unable to lock wallet.")
 	}
-	return stakeinfo
-}
 
-func mustGetStakeDiff(r *coinharness.Harness, t *testing.T) float64 {
-	stakeDiffResult, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
+	// Check that wallet is locked
+	walletInfo, err := wcl.WalletInfo()
 	if err != nil {
-		t.Fatal("GetStakeDifficulty failed:", err)
+		t.Fatal("walletinfo failed.")
+	}
+	if walletInfo.Unlocked {
+		t.Fatal("WalletLock failed to lock the wallet")
 	}
 
-	return stakeDiffResult.CurrentStakeDifficulty
-}
+	// Try incorrect password
+	err = wcl.WalletUnlock("Wrong Password", 0)
+	// Check for "-14: invalid passphrase for master private key"
+	if err != nil && err.(*dcrjson.RPCError).Code !=
+		dcrjson.ErrRPCWalletPassphraseIncorrect {
+		// dcrjson.ErrWalletPassphraseIncorrect.Code
+		t.Fatalf("WalletPassphrase with INCORRECT passphrase exited with: %v",
+			err)
+	}
 
-func mustGetStakeDiffNext(r *coinharness.Harness, t *testing.T) float64 {
-	stakeDiffResult, err := r.WalletRPCClient().Internal().(*rpcclient.Client).GetStakeDifficulty()
+	// Check that wallet is still locked
+	walletInfo, err = wcl.WalletInfo()
 	if err != nil {
-		t.Fatal("GetStakeDifficulty failed:", err)
+		t.Fatal("walletinfo failed.")
+	}
+	if walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase unlocked the wallet with the wrong passphrase")
 	}
 
-	return stakeDiffResult.NextStakeDifficulty
-}
-
-func advanceToHeight(r *coinharness.Harness, t *testing.T, height uint32) {
-	curBlockHeight := getBestBlockHeight(r, t)
-	initHeight := curBlockHeight
-
-	if curBlockHeight >= height {
-		return
+	// Verify that a restricted operation like createnewaccount fails
+	accountName := "cannotCreateThisAccount"
+	err = wcl.CreateNewAccount(accountName)
+	if err == nil {
+		t.Fatal("createnewaccount succeeded on a locked wallet.")
+	}
+	// dcrjson.ErrRPCWalletUnlockNeeded
+	if !strings.HasPrefix(err.Error(),
+		strconv.Itoa(int(dcrjson.ErrRPCWalletUnlockNeeded))) {
+		t.Fatalf("createnewaccount returned error (%v) instead of %v",
+			err, dcrjson.ErrRPCWalletUnlockNeeded)
 	}
 
-	for curBlockHeight != height {
-		curBlockHeight, _, _ = newBlockAtQuick(curBlockHeight, r, t)
-		time.Sleep(75 * time.Millisecond)
-	}
-	t.Logf("Advanced %d blocks to block height %d", curBlockHeight-initHeight,
-		curBlockHeight)
-}
-
-func newBlockAt(currentHeight uint32, r *coinharness.Harness,
-	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
-	height, block, blockHashes := newBlockAtQuick(currentHeight, r, t)
-
-	time.Sleep(700 * time.Millisecond)
-
-	return height, block, blockHashes
-}
-
-func newBlockAtQuick(currentHeight uint32, r *coinharness.Harness,
-	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
-
-	blockHashes, err := GenerateBlock(r, currentHeight)
+	// Unlock with correct passphrase
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
 	if err != nil {
-		t.Fatalf("Unable to generate single block: %v", err)
+		t.Fatalf("WalletPassphrase failed: %v", err)
 	}
 
-	block, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlock(blockHashes[0])
+	// Check that wallet is now unlocked
+	walletInfo, err = wcl.WalletInfo()
 	if err != nil {
-		t.Fatalf("Unable to get block: %v", err)
+		t.Fatal("walletinfo failed.")
+	}
+	if !walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
 	}
 
-	return block.Header.Height, dcrutil.NewBlock(block), blockHashes
-}
+	// Check for ErrRPCWalletAlreadyUnlocked
+	err = wcl.WalletUnlock(defaultWalletPassphrase, 0)
+	// Check for "-17: Wallet is already unlocked"
+	if err != nil && err.(*dcrjson.RPCError).Code !=
+		dcrjson.ErrRPCWalletAlreadyUnlocked {
+		t.Fatalf("WalletPassphrase failed: %v", err)
+	}
 
-func getBestBlock(r *coinharness.Harness, t *testing.T) (uint32, *dcrutil.Block, *chainhash.Hash) {
-	bestBlockHash, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBestBlockHash()
+	// Re-lock wallet
+	err = wcl.WalletLock()
 	if err != nil {
-		t.Fatalf("Unable to get best block hash: %v", err)
+		t.Fatal("Unable to lock wallet.")
 	}
-	bestBlock, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlock(bestBlockHash)
+
+	// Unlock with timeout
+	timeOut := int64(6)
+	err = wcl.WalletUnlock(defaultWalletPassphrase, timeOut)
 	if err != nil {
-		t.Fatalf("Unable to get block: %v", err)
+		t.Fatalf("WalletPassphrase failed: %v", err)
 	}
-	curBlockHeight := bestBlock.Header.Height
 
-	return curBlockHeight, dcrutil.NewBlock(bestBlock), bestBlockHash
-}
-
-func getBestBlockHeight(r *coinharness.Harness, t *testing.T) uint32 {
-	_, height, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBestBlock()
+	// Check that wallet is now unlocked
+	walletInfo, err = wcl.WalletInfo()
 	if err != nil {
-		t.Fatalf("Failed to GetBestBlock: %v", err)
+		t.Fatal("walletinfo failed.")
+	}
+	if !walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
 	}
 
-	return uint32(height)
-}
+	time.Sleep(time.Duration(timeOut+2) * time.Second)
 
-func newBestBlock(r *coinharness.Harness,
-	t *testing.T) (uint32, *dcrutil.Block, []*chainhash.Hash) {
-	height := getBestBlockHeight(r, t)
-	height, block, blockHash := newBlockAt(height, r, t)
-	return height, block, blockHash
-}
-
-// includesTx checks if a block contains a transaction hash
-func includesTx(txHash *chainhash.Hash, block *dcrutil.Block) bool {
-	if len(block.Transactions()) <= 1 {
-		return false
-	}
-
-	blockTxs := block.Transactions()
-
-	for _, minedTx := range blockTxs {
-		minedTxHash := minedTx.Hash()
-		if *txHash == *minedTxHash {
-			return true
-		}
-	}
-
-	return false
-}
-
-// includesTx checks if a block contains a transaction hash
-func includesStakeTx(txHash *chainhash.Hash, block *dcrutil.Block) bool {
-	if len(block.STransactions()) <= 1 {
-		return false
-	}
-
-	blockTxs := block.STransactions()
-
-	for _, minedTx := range blockTxs {
-		minedTxHash := minedTx.Hash()
-		if *txHash == *minedTxHash {
-			return true
-		}
-	}
-
-	return false
-}
-
-// getWireMsgTxFee computes the effective absolute fee from a Tx as the amount
-// spent minus sent.
-func getWireMsgTxFee(tx *dcrutil.Tx) dcrutil.Amount {
-	var totalSpent int64
-	for _, txIn := range tx.MsgTx().TxIn {
-		totalSpent += txIn.ValueIn
-	}
-
-	var totalSent int64
-	for _, txOut := range tx.MsgTx().TxOut {
-		totalSent += txOut.Value
-	}
-
-	return dcrutil.Amount(totalSpent - totalSent)
-}
-
-// getOutPointString uses OutPoint.String() to combine the tx hash with vout
-// index from a ListUnspentResult.
-func getOutPointString(utxo *dcrjson.ListUnspentResult) (string, error) {
-	txhash, err := chainhash.NewHashFromStr(utxo.TxID)
+	// Check that wallet is now locked
+	walletInfo, err = wcl.WalletInfo()
 	if err != nil {
-		return "", err
+		t.Fatal("walletinfo failed.")
 	}
-	return wire.NewOutPoint(txhash, utxo.Vout, utxo.Tree).String(), nil
+	if walletInfo.Unlocked {
+		t.Fatal("Wallet still unlocked after timeout")
+	}
+
+	if err := wcl.WalletUnlock(defaultWalletPassphrase, 0); err != nil {
+		t.Fatal("Unable to unlock wallet:", err)
+	}
+
+	// TODO: Watching-only error?
 }
