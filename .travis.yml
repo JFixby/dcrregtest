@@ -7,7 +7,6 @@ services:
   - docker
 
 env:
-  - GOVERSION=1.12
   - GOVERSION=1.13
 
 before_install:
