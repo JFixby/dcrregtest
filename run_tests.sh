@@ -44,10 +44,9 @@ testrepo () {
 
   # run tests on all modules
 
-  go get ./...
   pushd ../../
-  git clone --depth=50 --branch=master https://github.com/decred/dcrd.git decred/dcrd
-  git clone --depth=50 --branch=master https://github.com/decred/dcrwallet.git decred/dcrwallet
+  git clone --depth=50 --branch=release-v1.4 https://github.com/decred/dcrd.git decred/dcrd
+  git clone --depth=50 --branch=release-v1.4 https://github.com/decred/dcrwallet.git decred/dcrwallet
   popd
 
   export GO111MODULE=on
