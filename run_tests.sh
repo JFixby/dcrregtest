@@ -46,7 +46,8 @@ testrepo () {
 
   go get ./...
   pushd ../../
-  ls
+  git clone --depth=50 --branch=master https://github.com/decred/dcrd.git decred/dcrd
+  git clone --depth=50 --branch=master https://github.com/decred/dcrwallet.git decred/dcrwallet
   popd
 
   export GO111MODULE=on
