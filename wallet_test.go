@@ -11,6 +11,7 @@ import (
 	"github.com/decred/dcrd/txscript"
 	"github.com/decred/dcrwallet/wallet"
 	"github.com/google/go-cmp/cmp"
+	"math"
 	"math/big"
 	"reflect"
 	"strconv"
@@ -934,25 +935,35 @@ func TestSendFrom(t *testing.T) {
 	feeAtoms := dcrutil.Amount(totalSpent - totalSent)
 
 	// Calculate the expected balance for the default account after the tx was sent
-	sentAtoms := amountToSend + feeAtoms
-	sentCoinsFloat := sentAtoms.ToCoin()
+	sentAtoms := uint64(amountToSend + feeAtoms)
 
-	sentCoinsNegative := new(big.Float)
-	sentCoinsNegative.SetFloat64(-sentCoinsFloat)
+	m1 := new(big.Float)
+	m1.SetFloat64(-1)
+
+	E8 := new(big.Float)
+	E8.SetFloat64(math.Pow10(int(8)))
+
+	sentAtomsNegative := new(big.Float)
+	sentAtomsNegative.SetUint64(sentAtoms)
+	sentAtomsNegative = sentAtomsNegative.Mul(sentAtomsNegative, m1)
 
 	oldBalanceCoins := new(big.Float)
 	oldBalanceCoins.SetFloat64(defaultBalanceBeforeSend.Balances[0].Spendable)
+	oldBalanceAtoms := new(big.Float)
+	oldBalanceAtoms = oldBalanceAtoms.Mul(oldBalanceCoins, E8)
 
-	expectedBalanceCoins := new(big.Float)
-	expectedBalanceCoins.Add(oldBalanceCoins, sentCoinsNegative)
+	expectedBalanceAtoms := new(big.Float)
+	expectedBalanceAtoms.Add(oldBalanceAtoms, sentAtomsNegative)
 
 	currentBalanceCoinsNegative := new(big.Float)
-	currentBalanceCoinsNegative.SetFloat64(-defaultBalanceAfterSendNoBlock.Balances[0].Spendable)
+	currentBalanceCoinsNegative.SetFloat64(defaultBalanceAfterSendNoBlock.Balances[0].Spendable)
+	currentBalanceCoinsNegative = currentBalanceCoinsNegative.Mul(currentBalanceCoinsNegative, m1)
+
+	currentBalanceAtomsNegative := new(big.Float)
+	currentBalanceAtomsNegative = currentBalanceAtomsNegative.Mul(currentBalanceCoinsNegative, E8)
 
 	diff := new(big.Float)
-	diff.Add(currentBalanceCoinsNegative, expectedBalanceCoins)
-
-	f64, _ := expectedBalanceCoins.Float64()
+	diff.Add(currentBalanceAtomsNegative, expectedBalanceAtoms)
 
 	zero := new(big.Float)
 	zero.SetFloat64(0)
@@ -960,7 +971,7 @@ func TestSendFrom(t *testing.T) {
 	if diff.Cmp(zero) != 0 {
 		t.Fatalf("balance for %s account incorrect: want %v got %v, diff %V",
 			"default",
-			f64,
+			currentBalanceAtomsNegative,
 			defaultBalanceAfterSendNoBlock.Balances[0].Spendable,
 			diff,
 		)
