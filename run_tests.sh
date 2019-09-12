@@ -46,9 +46,18 @@ testrepo () {
   export GO111MODULE=on
   $GO fmt ./...
   $GO build ./...
+
+  pushd ../../decred/dcrd
   ls
-  dir
-  ls $GOPATH
+  go install
+  popd
+
+  pushd ../../decred/dcrwallet
+  ls
+  go install
+  popd
+
+  ls
   $GO test ./...
 
   echo "------------------------------------------"
