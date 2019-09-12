@@ -21,8 +21,127 @@ import (
 	"time"
 )
 
+func TestWalletPassphrase(t *testing.T) {
+
+	r := ObtainWalletHarness(mainWalletHarnessName)
+	// Wallet RPC client
+	wcl := r.Wallet
+
+	// Remember to leave the wallet unlocked for any subsequent tests
+	defaultWalletPassphrase := "password"
+	defer func() {
+		if err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0); err != nil {
+			t.Fatal("Unable to unlock wallet:", err)
+		}
+	}()
+
+	// Lock the wallet since test wallet is unlocked by default
+	err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletLock()
+	if err != nil {
+		t.Fatal("Unable to lock wallet.")
+	}
+
+	// Check that wallet is locked
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	if err != nil {
+		t.Fatal("walletinfo failed.")
+	}
+	if walletInfo.Unlocked {
+		t.Fatal("WalletLock failed to lock the wallet")
+	}
+
+	// Try incorrect password
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase("Wrong Password", 0)
+	// Check for "-14: invalid passphrase for master private key"
+	if err != nil && err.(*dcrjson.RPCError).Code !=
+		dcrjson.ErrRPCWalletPassphraseIncorrect {
+		// dcrjson.ErrWalletPassphraseIncorrect.Code
+		t.Fatalf("WalletPassphrase with INCORRECT passphrase exited with: %v",
+			err)
+	}
+
+	// Check that wallet is still locked
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	if err != nil {
+		t.Fatal("walletinfo failed.")
+	}
+	if walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase unlocked the wallet with the wrong passphrase")
+	}
+
+	// Verify that a restricted operation like createnewaccount fails
+	accountName := "cannotCreateThisAccount"
+	err = wcl.CreateNewAccount(accountName)
+	if err == nil {
+		t.Fatal("createnewaccount succeeded on a locked wallet.")
+	}
+	// dcrjson.ErrRPCWalletUnlockNeeded
+	if !strings.HasPrefix(err.Error(),
+		strconv.Itoa(int(dcrjson.ErrRPCWalletUnlockNeeded))) {
+		t.Fatalf("createnewaccount returned error (%v) instead of %v",
+			err, dcrjson.ErrRPCWalletUnlockNeeded)
+	}
+
+	// Unlock with correct passphrase
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
+	if err != nil {
+		t.Fatalf("WalletPassphrase failed: %v", err)
+	}
+
+	// Check that wallet is now unlocked
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	if err != nil {
+		t.Fatal("walletinfo failed.")
+	}
+	if !walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
+	}
+
+	// Check for ErrRPCWalletAlreadyUnlocked
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
+	// Check for "-17: Wallet is already unlocked"
+	if err != nil && err.(*dcrjson.RPCError).Code !=
+		dcrjson.ErrRPCWalletAlreadyUnlocked {
+		t.Fatalf("WalletPassphrase failed: %v", err)
+	}
+
+	// Re-lock wallet
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletLock()
+	if err != nil {
+		t.Fatal("Unable to lock wallet.")
+	}
+
+	// Unlock with timeout
+	timeOut := int64(6)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, timeOut)
+	if err != nil {
+		t.Fatalf("WalletPassphrase failed: %v", err)
+	}
+
+	// Check that wallet is now unlocked
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	if err != nil {
+		t.Fatal("walletinfo failed.")
+	}
+	if !walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
+	}
+
+	time.Sleep(time.Duration(timeOut+2) * time.Second)
+
+	// Check that wallet is now locked
+	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	if err != nil {
+		t.Fatal("walletinfo failed.")
+	}
+	if walletInfo.Unlocked {
+		t.Fatal("Wallet still unlocked after timeout")
+	}
+
+	// TODO: Watching-only error?
+}
+
 func TestGetNewAddress(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -173,15 +292,24 @@ func TestGetNewAddress(t *testing.T) {
 }
 
 func TestValidateAddress(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
 	wcl := r.Wallet
+
+	// Check that wallet is now unlocked
+	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	if err != nil {
+		t.Fatal("walletinfo failed.")
+	}
+	if !walletInfo.Unlocked {
+		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
+	}
+
 	//-----------------------------------------
 	newAccountName := "testValidateAddress"
 	// Create a non-default account
-	err := wcl.CreateNewAccount(newAccountName)
+	err = wcl.CreateNewAccount(newAccountName)
 	if err != nil {
 		t.Fatalf("Unable to create account %s: %v", newAccountName, err)
 	}
@@ -312,129 +440,7 @@ func TestValidateAddress(t *testing.T) {
 
 }
 
-func TestWalletPassphrase(t *testing.T) {
-	
-
-	r := ObtainWalletHarness(mainWalletHarnessName)
-	// Wallet RPC client
-	wcl := r.Wallet
-
-	// Remember to leave the wallet unlocked for any subsequent tests
-	defaultWalletPassphrase := "password"
-	defer func() {
-		if err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0); err != nil {
-			t.Fatal("Unable to unlock wallet:", err)
-		}
-	}()
-
-	// Lock the wallet since test wallet is unlocked by default
-	err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletLock()
-	if err != nil {
-		t.Fatal("Unable to lock wallet.")
-	}
-
-	// Check that wallet is locked
-	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if walletInfo.Unlocked {
-		t.Fatal("WalletLock failed to lock the wallet")
-	}
-
-	// Try incorrect password
-	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase("Wrong Password", 0)
-	// Check for "-14: invalid passphrase for master private key"
-	if err != nil && err.(*dcrjson.RPCError).Code !=
-		dcrjson.ErrRPCWalletPassphraseIncorrect {
-		// dcrjson.ErrWalletPassphraseIncorrect.Code
-		t.Fatalf("WalletPassphrase with INCORRECT passphrase exited with: %v",
-			err)
-	}
-
-	// Check that wallet is still locked
-	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if walletInfo.Unlocked {
-		t.Fatal("WalletPassphrase unlocked the wallet with the wrong passphrase")
-	}
-
-	// Verify that a restricted operation like createnewaccount fails
-	accountName := "cannotCreateThisAccount"
-	err = wcl.CreateNewAccount(accountName)
-	if err == nil {
-		t.Fatal("createnewaccount succeeded on a locked wallet.")
-	}
-	// dcrjson.ErrRPCWalletUnlockNeeded
-	if !strings.HasPrefix(err.Error(),
-		strconv.Itoa(int(dcrjson.ErrRPCWalletUnlockNeeded))) {
-		t.Fatalf("createnewaccount returned error (%v) instead of %v",
-			err, dcrjson.ErrRPCWalletUnlockNeeded)
-	}
-
-	// Unlock with correct passphrase
-	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
-	if err != nil {
-		t.Fatalf("WalletPassphrase failed: %v", err)
-	}
-
-	// Check that wallet is now unlocked
-	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if !walletInfo.Unlocked {
-		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
-	}
-
-	// Check for ErrRPCWalletAlreadyUnlocked
-	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, 0)
-	// Check for "-17: Wallet is already unlocked"
-	if err != nil && err.(*dcrjson.RPCError).Code !=
-		dcrjson.ErrRPCWalletAlreadyUnlocked {
-		t.Fatalf("WalletPassphrase failed: %v", err)
-	}
-
-	// Re-lock wallet
-	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletLock()
-	if err != nil {
-		t.Fatal("Unable to lock wallet.")
-	}
-
-	// Unlock with timeout
-	timeOut := int64(6)
-	err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletPassphrase(defaultWalletPassphrase, timeOut)
-	if err != nil {
-		t.Fatalf("WalletPassphrase failed: %v", err)
-	}
-
-	// Check that wallet is now unlocked
-	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if !walletInfo.Unlocked {
-		t.Fatal("WalletPassphrase failed to unlock the wallet with the correct passphrase")
-	}
-
-	time.Sleep(time.Duration(timeOut+2) * time.Second)
-
-	// Check that wallet is now locked
-	walletInfo, err = r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
-	if err != nil {
-		t.Fatal("walletinfo failed.")
-	}
-	if walletInfo.Unlocked {
-		t.Fatal("Wallet still unlocked after timeout")
-	}
-
-	// TODO: Watching-only error?
-}
-
 func TestGetBalance(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -564,7 +570,6 @@ func TestGetBalance(t *testing.T) {
 }
 
 func TestListAccounts(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -716,7 +721,6 @@ func TestListAccounts(t *testing.T) {
 }
 
 func TestListUnspent(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -868,7 +872,6 @@ func TestListUnspent(t *testing.T) {
 }
 
 func TestSendToAddress(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 
@@ -941,7 +944,6 @@ func TestSendToAddress(t *testing.T) {
 }
 
 func TestSendFrom(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	accountName := "sendFromTest"
@@ -1105,7 +1107,6 @@ func TestSendFrom(t *testing.T) {
 }
 
 func TestSendMany(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet RPC client
@@ -1261,9 +1262,7 @@ func TestSendMany(t *testing.T) {
 }
 
 func TestListTransactions(t *testing.T) {
-	
-
-	r := ObtainWalletHarness(t.Name() + "-harness")
+	r := ObtainWalletHarness(t.Name())
 	// Wallet RPC client
 	wcl := r.Wallet
 
@@ -1561,7 +1560,6 @@ func TestListTransactions(t *testing.T) {
 }
 
 func TestGetSetRelayFee(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 
@@ -1663,7 +1661,6 @@ func TestGetSetRelayFee(t *testing.T) {
 }
 
 func TestGetSetTicketFee(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// dcrrpcclient does not have a getticketee or any direct method, so we
@@ -1761,7 +1758,6 @@ func TestGetSetTicketFee(t *testing.T) {
 }
 
 func TestGetTickets(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
@@ -1843,7 +1839,6 @@ func TestGetTickets(t *testing.T) {
 }
 
 func TestPurchaseTickets(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	// Wallet.purchaseTicket() in wallet/createtx.go
@@ -2024,7 +2019,6 @@ func TestPurchaseTickets(t *testing.T) {
 
 // testGetStakeInfo gets a FRESH harness
 func TestGetStakeInfo(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(t.Name() + "-harness")
 
@@ -2210,7 +2204,6 @@ func TestGetStakeInfo(t *testing.T) {
 
 // testWalletInfo
 func TestWalletInfo(t *testing.T) {
-	
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
 

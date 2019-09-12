@@ -20,7 +20,8 @@ func ObtainHarness(tag string) *coinharness.Harness {
 }
 
 func ObtainWalletHarness(tag string) *coinharness.Harness {
-	return testSetup.Simnet25.NewInstance(tag).(*coinharness.Harness)
+	s := testSetup.harnessWalletPool.ObtainSpawnableConcurrentSafe(tag)
+	return s.(*coinharness.Harness)
 }
 
 var testSetup *SimpleTestSetup

@@ -34,6 +34,8 @@ type SimpleTestSetup struct {
 	// complex scenarios involving multiple nodes.
 	harnessPool *pin.Pool
 
+	harnessWalletPool *pin.Pool
+
 	// Mainnet creates a mainnet test harness
 	Mainnet0 *ChainWithMatureOutputsSpawner
 
@@ -105,7 +107,7 @@ func Setup() *SimpleTestSetup {
 	}
 
 	portManager := &LazyPortManager{
-		BasePort: 20000,
+		BasePort: 30000,
 		offset:   0,
 	}
 
@@ -212,6 +214,7 @@ func Setup() *SimpleTestSetup {
 	}
 
 	setup.harnessPool = pin.NewPool(setup.Regnet25)
+	setup.harnessWalletPool = pin.NewPool(setup.Simnet25)
 
 	return setup
 }

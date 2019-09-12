@@ -129,6 +129,10 @@ func launchHarnessSequence(h *coinharness.Harness, args *launchArguments) {
 		ExtraArguments:           args.WalletExtraArguments,
 	}
 
+	// wait for the WalletTestServer to sync up to the current height
+	_, _, e := h.NodeRPCClient().GetBestBlock()
+	pin.CheckTestSetupMalfunction(e)
+
 	wallet.Start(walletLaunchArguments)
 
 }
