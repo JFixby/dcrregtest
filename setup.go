@@ -76,6 +76,7 @@ type SimpleTestSetup struct {
 // and shutting down any created processes.
 func (setup *SimpleTestSetup) TearDown() {
 	setup.harnessPool.DisposeAll()
+	setup.harnessWalletPool.DisposeAll()
 	//setup.nodeGoBuilder.Dispose()
 	setup.WorkingDir.Dispose()
 }
