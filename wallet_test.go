@@ -829,10 +829,15 @@ func TestSendToAddress(t *testing.T) {
 }
 
 func TestSendFrom(t *testing.T) {
-
 	r := ObtainWalletHarness(mainWalletHarnessName)
+
+	err := r.Wallet.WalletUnlock(defaultWalletPassphrase, 0)
+	if err != nil {
+		t.Fatal("Failed to unlock wallet:", err)
+	}
+
 	accountName := "sendFromTest"
-	err := r.WalletRPCClient().Internal().(*rpcclient.Client).CreateNewAccount(accountName)
+	err = r.WalletRPCClient().Internal().(*rpcclient.Client).CreateNewAccount(accountName)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -949,11 +954,15 @@ func TestSendFrom(t *testing.T) {
 
 	f64, _ := expectedBalanceCoins.Float64()
 
-	if f64 != defaultBalanceAfterSendNoBlock.Balances[0].Spendable {
-		t.Fatalf("balance for %s account incorrect: want %v got %v",
+	zero := new(big.Float)
+	zero.SetFloat64(0)
+
+	if diff.Cmp(zero) != 0 {
+		t.Fatalf("balance for %s account incorrect: want %v got %v, diff %V",
 			"default",
-			expectedBalanceCoins,
+			f64,
 			defaultBalanceAfterSendNoBlock.Balances[0].Spendable,
+			diff,
 		)
 	}
 
