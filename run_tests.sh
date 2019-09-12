@@ -46,6 +46,9 @@ testrepo () {
   export GO111MODULE=on
   $GO fmt ./...
   $GO build ./...
+  ls
+  dir
+  ls $GOPATH
   $GO test ./...
 
   echo "------------------------------------------"
