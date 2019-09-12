@@ -183,7 +183,7 @@ func TestValidateAddress(t *testing.T) {
 	wcl := r.Wallet
 
 	// Check that wallet is now unlocked
-	walletInfo, err := r.WalletRPCClient().Internal().(*rpcclient.Client).WalletInfo()
+	walletInfo, err := wcl.WalletInfo()
 	if err != nil {
 		t.Fatal("walletinfo failed.")
 	}
