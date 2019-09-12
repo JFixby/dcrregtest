@@ -117,8 +117,8 @@ github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpO
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jfixby/coinharness v0.0.0-20190912004315-f4bdf29d76cd h1:CbPsLs1uyDCwuhRU3ZN4FYXvcSUi0Fv6cxR+kHMlvnk=
 github.com/jfixby/coinharness v0.0.0-20190912004315-f4bdf29d76cd/go.mod h1:d/brli3srPhkdmg/3B9ZnaxEj6SgbZbGj27eapvPwOY=
-github.com/jfixby/dcrharness v0.0.0-20190911194935-e18cbcc632e0 h1:m1e6M9Y0CRN8sWoNiXmtU+QsOxr6+Pm1UjlUCbb/zlw=
-github.com/jfixby/dcrharness v0.0.0-20190911194935-e18cbcc632e0/go.mod h1:i7Ix4FufvsFX+9dMIBsCNuQfRWrbv+UGT4XbW3/5DKQ=
+github.com/jfixby/dcrharness v0.0.0-20190912013346-f006d51ebbf2 h1:Eknwus5XnusWo0iwpUKWqlsj2gIUPA+SR0M6SPFc4yc=
+github.com/jfixby/dcrharness v0.0.0-20190912013346-f006d51ebbf2/go.mod h1:i7Ix4FufvsFX+9dMIBsCNuQfRWrbv+UGT4XbW3/5DKQ=
 github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c h1:VVO+vlTdgPlkrNzgImAywNR/STScjb/MwiTLRd/R/vc=
 github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c/go.mod h1:fcyyZW36sY5GM2qsX/sewjJu7y5ngGKoELUbDEccDqY=
 github.com/jrick/bitset v1.0.0/go.mod h1:ZOYB5Uvkla7wIEY4FEssPVi3IQXa02arznRaYaAEPe4=
