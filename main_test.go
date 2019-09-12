@@ -36,10 +36,18 @@ func TestMain(m *testing.M) {
 	if !testing.Short() {
 		// Initialize harnesses before running any tests
 		// otherwise they will be created on request.
-		tagsList := []string{
-			//mainHarnessName,
+		{
+			tagsList := []string{
+				mainHarnessName,
+			}
+			testSetup.harnessPool.InitTags(tagsList)
 		}
-		testSetup.harnessPool.InitTags(tagsList)
+		{
+			tagsList := []string{
+				mainWalletHarnessName,
+			}
+			testSetup.harnessWalletPool.InitTags(tagsList)
+		}
 	}
 
 	// Run tests
