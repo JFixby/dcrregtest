@@ -113,6 +113,8 @@ func Setup() *SimpleTestSetup {
 		BasePort: 30000,
 	}
 
+	testSeed := dcrharness.NewTestSeed
+
 	// Deploy harness spawner with generated
 	// test chain of 25 mature outputs
 	setup.Regnet25 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -124,6 +126,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		NewTestSeed:       testSeed,
 	}
 
 	setup.Mainnet0 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -135,6 +138,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     mainnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.MainNetParams},
+		NewTestSeed:       testSeed,
 	}
 
 	// Deploy harness spawner with generated
@@ -148,6 +152,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		NewTestSeed:       testSeed,
 	}
 
 	setup.Regnet1 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -159,6 +164,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		NewTestSeed:       testSeed,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
 		},
@@ -173,6 +179,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
+		NewTestSeed:       testSeed,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
 		},
@@ -187,6 +194,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
+		NewTestSeed:       testSeed,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
 		},
@@ -202,6 +210,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		NewTestSeed:       testSeed,
 	}
 	// Deploy harness spawner with empty test chain
 	setup.Simnet0 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -213,6 +222,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
+		NewTestSeed:       testSeed,
 	}
 
 	setup.harnessPool = pin.NewPool(setup.Regnet25)
