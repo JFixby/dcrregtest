@@ -29,17 +29,17 @@ testrepo () {
 
   pushd ../../${PROJECT}/${NODE_REPO}
   $GO build ./...
-  ${NODE_REPO} --version
   $GO install
   popd
 
   pushd ../../${PROJECT}/${WALLET_REPO}
   $GO build ./...
-  ${WALLET_REPO} --version
   $GO install
   popd
 
   GO111MODULE=on
+  ${NODE_REPO} --version
+  ${WALLET_REPO} --version
   $GO clean -testcache
   $GO build ./...
   $GO test ./...
