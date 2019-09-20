@@ -226,7 +226,7 @@ func TestValidateAddress(t *testing.T) {
 	devSubPkScript := chaincfg.SimNetParams.OrganizationPkScript // "ScuQxvveKGfpG1ypt6u27F99Anf7EW3cqhq"
 	devSubPkScrVer := chaincfg.SimNetParams.OrganizationPkScriptVersion
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(
-		devSubPkScrVer, devSubPkScript, r.Node.Network().(*chaincfg.Params))
+		devSubPkScrVer, devSubPkScript, r.Node.Network().Params().(*chaincfg.Params))
 	if err != nil {
 		t.Fatal("Failed to extract addresses from PkScript:", err)
 	}
@@ -258,7 +258,7 @@ func TestValidateAddress(t *testing.T) {
 				t.Fatal(err)
 			}
 			// Verify that address is for current network
-			if !addr.IsForNet(r.Node.Network().(*chaincfg.Params)) {
+			if !addr.IsForNet(r.Node.Network().Params().(*chaincfg.Params)) {
 				t.Fatalf(
 					"Address[%d] not for active network (%s), <%s>",
 					i,
@@ -663,7 +663,7 @@ func TestListUnspent(t *testing.T) {
 	}
 	// The Address field is broken, including only one address, so don't use it
 	_, addrs, _, err := txscript.ExtractPkScriptAddrs(
-		txscript.DefaultScriptVersion, PkScript, r.Node.Network().(*chaincfg.Params))
+		txscript.DefaultScriptVersion, PkScript, r.Node.Network().Params().(*chaincfg.Params))
 	if err != nil {
 		t.Fatal("Failed to extract addresses from PkScript:", err)
 	}

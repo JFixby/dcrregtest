@@ -58,7 +58,7 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 		BlockVersion:  BlockVersion,
 		BlockTime:     time.Time{},
 		MiningAddress: r.MiningAddress.Internal().(dcrutil.Address),
-		Network:       r.Node.Network().(*chaincfg.Params),
+		Network:       r.Node.Network().Params().(*chaincfg.Params),
 	}
 	block, err := dcrharness.GenerateAndSubmitBlock(r.NodeRPCClient(), &newBlockArgs)
 	if err != nil {
@@ -87,7 +87,7 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 		BlockVersion:  targetBlockVersion,
 		BlockTime:     timestamp,
 		MiningAddress: r.MiningAddress.Internal().(dcrutil.Address),
-		Network:       r.Node.Network().(*chaincfg.Params),
+		Network:       r.Node.Network().Params().(*chaincfg.Params),
 	}
 	block, err = dcrharness.GenerateAndSubmitBlock(r.NodeRPCClient(), &newBlockArgs2)
 	if err != nil {

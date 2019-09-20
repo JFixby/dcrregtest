@@ -58,7 +58,7 @@ func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
 			PkScript: []byte{},
 		}},
 		MiningAddress: r.MiningAddress.Internal().(dcrutil.Address),
-		Network:       r.Node.Network().(*chaincfg.Params),
+		Network:       r.Node.Network().Params().(*chaincfg.Params),
 	}
 	block, err := dcrharness.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(r.NodeRPCClient(), &newBlockArgs)
 	if err != nil {
@@ -91,7 +91,7 @@ func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
 			PkScript: []byte{},
 		}},
 		MiningAddress: r.MiningAddress.Internal().(dcrutil.Address),
-		Network:       r.Node.Network().(*chaincfg.Params),
+		Network:       r.Node.Network().Params().(*chaincfg.Params),
 	}
 	block, err = dcrharness.GenerateAndSubmitBlockWithCustomCoinbaseOutputs(r.NodeRPCClient(), &newBlockArgs2)
 	if err != nil {
