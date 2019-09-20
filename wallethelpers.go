@@ -21,7 +21,7 @@ func mineBlock(t *testing.T, r *coinharness.Harness) {
 		t.Fatal("Failed to get chain height:", err)
 	}
 
-	err = generateTestChain(1, r.NodeRPCClient())
+	err = coinharness.GenerateTestChain(1, r.NodeRPCClient())
 	if err != nil {
 		t.Fatal("Failed to mine block:", err)
 	}
