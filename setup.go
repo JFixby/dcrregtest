@@ -11,6 +11,7 @@ import (
 	"github.com/jfixby/dcrharness/nodecls"
 	"github.com/jfixby/dcrharness/walletcls"
 	"github.com/jfixby/pin"
+	"github.com/jfixby/coinharness"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"
 	"io/ioutil"
@@ -87,7 +88,7 @@ func Setup() *SimpleTestSetup {
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	memWalletFactory := &memwallet.MemWalletFactory{}
+	memWalletFactory := &memwallet.WalletFactory{}
 
 	wEXE := &commandline.ExplicitExecutablePathString{
 		PathString: "dcrwallet",
@@ -107,9 +108,8 @@ func Setup() *SimpleTestSetup {
 		NodeExecutablePathProvider: dEXE,
 	}
 
-	portManager := &LazyPortManager{
+	portManager := &coinharness.LazyPortManager{
 		BasePort: 30000,
-		offset:   0,
 	}
 
 	// Deploy harness spawner with generated
