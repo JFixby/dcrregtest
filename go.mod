@@ -14,6 +14,6 @@ require (
 	github.com/decred/dcrd/wire v1.2.0
 	github.com/decred/dcrwallet/errors v1.1.0
 	github.com/jfixby/coinharness v0.0.0-20190920181647-256c853f734e
-	github.com/jfixby/dcrharness v0.0.0-20190920183348-ec03fb627466
+	github.com/jfixby/dcrharness v0.0.0-20190920184446-849cdb3640d0
 	github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c
 )
