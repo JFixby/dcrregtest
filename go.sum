@@ -99,8 +99,8 @@ github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jfixby/coinharness v0.0.0-20190920181647-256c853f734e h1:L7ghimT1/QDAqHU3fJMrZ0RVdjnR+b5GjBzpjnPmCjM=
 github.com/jfixby/coinharness v0.0.0-20190920181647-256c853f734e/go.mod h1:d/brli3srPhkdmg/3B9ZnaxEj6SgbZbGj27eapvPwOY=
-github.com/jfixby/dcrharness v0.0.0-20190920184446-849cdb3640d0 h1:uB7n5Wq4XGeMWmBTNmsf0p/Vgksw6g2ZQ2leCNmm7yU=
-github.com/jfixby/dcrharness v0.0.0-20190920184446-849cdb3640d0/go.mod h1:i7Ix4FufvsFX+9dMIBsCNuQfRWrbv+UGT4XbW3/5DKQ=
+github.com/jfixby/dcrharness v0.0.0-20190920184801-07ded80d3298 h1:TOGj0RevGsYzPT5PItstXoZbxdt9XtZr8/vKNSI4AfY=
+github.com/jfixby/dcrharness v0.0.0-20190920184801-07ded80d3298/go.mod h1:i7Ix4FufvsFX+9dMIBsCNuQfRWrbv+UGT4XbW3/5DKQ=
 github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c h1:VVO+vlTdgPlkrNzgImAywNR/STScjb/MwiTLRd/R/vc=
 github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c/go.mod h1:fcyyZW36sY5GM2qsX/sewjJu7y5ngGKoELUbDEccDqY=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=

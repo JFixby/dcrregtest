@@ -126,6 +126,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 	}
 
@@ -138,6 +139,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     mainnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.MainNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 	}
 
@@ -152,6 +154,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 	}
 
@@ -164,6 +167,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
@@ -179,6 +183,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
@@ -194,6 +199,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
@@ -210,6 +216,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 	}
 	// Deploy harness spawner with empty test chain
@@ -222,6 +229,7 @@ func Setup() *SimpleTestSetup {
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
 		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
+		CreateTempWallet:  true,
 		NewTestSeed:       testSeed,
 	}
 
