@@ -7,11 +7,12 @@ package dcrregtest
 
 import (
 	"fmt"
+	"github.com/jfixby/coinharness"
+	"github.com/jfixby/dcrharness"
 	"github.com/jfixby/dcrharness/memwallet"
 	"github.com/jfixby/dcrharness/nodecls"
 	"github.com/jfixby/dcrharness/walletcls"
 	"github.com/jfixby/pin"
-	"github.com/jfixby/coinharness"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"
 	"io/ioutil"
@@ -122,7 +123,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.RegNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
 	}
 
 	setup.Mainnet0 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -133,7 +134,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     mainnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.MainNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.MainNetParams},
 	}
 
 	// Deploy harness spawner with generated
@@ -146,7 +147,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.RegNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
 	}
 
 	setup.Regnet1 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -157,7 +158,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.RegNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
 		},
@@ -171,7 +172,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.SimNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
 		},
@@ -185,7 +186,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.SimNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
 		NodeStartExtraArguments: map[string]interface{}{
 			"rejectnonstd": commandline.NoArgumentValue,
 		},
@@ -200,7 +201,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     regnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.RegNetParams,
+		ActiveNet:         &dcrharness.Network{&chaincfg.RegNetParams},
 	}
 	// Deploy harness spawner with empty test chain
 	setup.Simnet0 = &coinharness.ChainWithMatureOutputsSpawner{
@@ -211,7 +212,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         dcrharness.Network{&chaincfg.SimNetParams},
+		ActiveNet:         &dcrharness.Network{&chaincfg.SimNetParams},
 	}
 
 	setup.harnessPool = pin.NewPool(setup.Regnet25)
