@@ -38,35 +38,35 @@ type SimpleTestSetup struct {
 	harnessWalletPool *pin.Pool
 
 	// Mainnet creates a mainnet test harness
-	Mainnet0 *ChainWithMatureOutputsSpawner
+	Mainnet0 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Regnet25 creates a regnet test harness
 	// with 25 mature outputs.
-	Regnet25 *ChainWithMatureOutputsSpawner
+	Regnet25 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Simnet25 creates a simnet test harness
 	// with 25 mature outputs.
-	Simnet25 *ChainWithMatureOutputsSpawner
+	Simnet25 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Regnet5 creates a regnet test harness
 	// with 5 mature outputs.
-	Regnet5 *ChainWithMatureOutputsSpawner
+	Regnet5 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Regnet1 creates a regnet test harness
 	// with 1 mature output.
-	Regnet1 *ChainWithMatureOutputsSpawner
+	Regnet1 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Simnet1 creates a simnet test harness
 	// with 1 mature output.
-	Simnet1 *ChainWithMatureOutputsSpawner
+	Simnet1 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Regnet0 creates a regnet test harness
 	// with only the genesis block.
-	Regnet0 *ChainWithMatureOutputsSpawner
+	Regnet0 *coinharness.ChainWithMatureOutputsSpawner
 
 	// Simnet0 creates a simnet test harness
 	// with only the genesis block.
-	Simnet0 *ChainWithMatureOutputsSpawner
+	Simnet0 *coinharness.ChainWithMatureOutputsSpawner
 
 	// WorkingDir defines test setup working dir
 	WorkingDir *pin.TempDirHandler
@@ -114,7 +114,7 @@ func Setup() *SimpleTestSetup {
 
 	// Deploy harness spawner with generated
 	// test chain of 25 mature outputs
-	setup.Regnet25 = &ChainWithMatureOutputsSpawner{
+	setup.Regnet25 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -125,7 +125,7 @@ func Setup() *SimpleTestSetup {
 		ActiveNet:         &chaincfg.RegNetParams,
 	}
 
-	setup.Mainnet0 = &ChainWithMatureOutputsSpawner{
+	setup.Mainnet0 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -138,7 +138,7 @@ func Setup() *SimpleTestSetup {
 
 	// Deploy harness spawner with generated
 	// test chain of 5 mature outputs
-	setup.Regnet5 = &ChainWithMatureOutputsSpawner{
+	setup.Regnet5 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -149,7 +149,7 @@ func Setup() *SimpleTestSetup {
 		ActiveNet:         &chaincfg.RegNetParams,
 	}
 
-	setup.Regnet1 = &ChainWithMatureOutputsSpawner{
+	setup.Regnet1 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -163,7 +163,7 @@ func Setup() *SimpleTestSetup {
 		},
 	}
 
-	setup.Simnet1 = &ChainWithMatureOutputsSpawner{
+	setup.Simnet1 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -177,7 +177,7 @@ func Setup() *SimpleTestSetup {
 		},
 	}
 
-	setup.Simnet25 = &ChainWithMatureOutputsSpawner{
+	setup.Simnet25 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -192,7 +192,7 @@ func Setup() *SimpleTestSetup {
 	}
 
 	// Deploy harness spawner with empty test chain
-	setup.Regnet0 = &ChainWithMatureOutputsSpawner{
+	setup.Regnet0 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -203,7 +203,7 @@ func Setup() *SimpleTestSetup {
 		ActiveNet:         &chaincfg.RegNetParams,
 	}
 	// Deploy harness spawner with empty test chain
-	setup.Simnet0 = &ChainWithMatureOutputsSpawner{
+	setup.Simnet0 = &coinharness.ChainWithMatureOutputsSpawner{
 		WorkingDir:        setup.WorkingDir.Path(),
 		DebugNodeOutput:   true,
 		DebugWalletOutput: true,
@@ -211,7 +211,7 @@ func Setup() *SimpleTestSetup {
 		NetPortManager:    portManager,
 		WalletFactory:     simnetWalletFactory,
 		NodeFactory:       nodeFactory,
-		ActiveNet:         &chaincfg.SimNetParams,
+		ActiveNet:         dcrharness.Network{&chaincfg.SimNetParams},
 	}
 
 	setup.harnessPool = pin.NewPool(setup.Regnet25)
