@@ -11,6 +11,7 @@ testrepo () {
   PROJECT=decred
   NODE_REPO=dcrd
   WALLET_REPO=dcrwallet
+  GO111MODULE=on
 
   $GO version
 
@@ -37,7 +38,6 @@ testrepo () {
   $GO install
   popd
 
-  GO111MODULE=on
   ${NODE_REPO} --version
   ${WALLET_REPO} --version
   $GO clean -testcache
