@@ -21,8 +21,8 @@ testrepo () {
   # run tests on all modules
 
   pushd ../../
-  git clone --depth=50 --branch=release-v1.4 https://github.com/${PROJECT}/${NODE_REPO}.git ${PROJECT}/${NODE_REPO}
-  git clone --depth=50 --branch=release-v1.4 https://github.com/${PROJECT}/${WALLET_REPO}.git ${PROJECT}/${WALLET_REPO}
+  git clone --depth=50 --branch=master https://github.com/${PROJECT}/${NODE_REPO}.git ${PROJECT}/${NODE_REPO}
+  git clone --depth=50 --branch=add_regnet https://github.com/jfixby/${WALLET_REPO}.git ${PROJECT}/${WALLET_REPO}
   popd
 
   $GO fmt ./...

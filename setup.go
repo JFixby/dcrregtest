@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jfixby/coinharness"
 	"github.com/jfixby/dcrharness"
-	"github.com/jfixby/dcrharness/memwallet"
 	"github.com/jfixby/dcrharness/nodecls"
 	"github.com/jfixby/dcrharness/walletcls"
 	"github.com/jfixby/pin"
@@ -84,7 +83,7 @@ func Setup() *SimpleTestSetup {
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	memWalletFactory := &memwallet.WalletFactory{}
+	//memWalletFactory := &memwallet.WalletFactory{}
 
 	wEXE := &commandline.ExplicitExecutablePathString{
 		PathString: "dcrwallet",
@@ -93,7 +92,7 @@ func Setup() *SimpleTestSetup {
 		WalletExecutablePathProvider: wEXE,
 	}
 
-	regnetWalletFactory := memWalletFactory
+	regnetWalletFactory := consoleWalletFactory
 	mainnetWalletFactory := consoleWalletFactory
 	simnetWalletFactory := consoleWalletFactory
 
