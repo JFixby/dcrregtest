@@ -94,7 +94,7 @@ func Setup() *SimpleTestSetup {
 	}
 
 	regnetWalletFactory := memWalletFactory
-	mainnetWalletFactory := memWalletFactory
+	mainnetWalletFactory := consoleWalletFactory
 	simnetWalletFactory := consoleWalletFactory
 
 	dEXE := &commandline.ExplicitExecutablePathString{
