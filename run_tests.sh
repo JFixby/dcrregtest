@@ -30,12 +30,12 @@ testrepo () {
 
   pushd ../../${PROJECT}/${NODE_REPO}
   $GO build ./...
-  $GO install
+  $GO install -v . ./cmd/...
   popd
 
   pushd ../../${PROJECT}/${WALLET_REPO}
   $GO build ./...
-  $GO install
+  $GO install -v . ./cmd/...
   popd
 
   ${NODE_REPO} --version
