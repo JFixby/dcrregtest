@@ -26,16 +26,16 @@ func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
 		t.Fatalf("unable to create script: %v", err)
 	}
 	output := wire.NewTxOut(dcrutil.AtomsPerCoin, pkScript)
-
+	output = output
 	const numTxns = 5
 	txns := make([]*dcrutil.Tx, 0, numTxns)
 	for i := 0; i < numTxns; i++ {
 		ctargs := &coinharness.CreateTransactionArgs{
-			Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
-			FeeRate: 10,
-			Change:  true,
+			//Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
+			//FeeRate: 10,
+			Change: true,
 		}
-		tx, err := r.Wallet.CreateTransaction(ctargs)
+		tx, err := coinharness.CreateTransaction(r.Wallet, ctargs)
 		if err != nil {
 			t.Fatalf("unable to create tx: %v", err)
 		}
