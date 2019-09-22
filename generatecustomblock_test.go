@@ -34,6 +34,8 @@ func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
 			//Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 			//FeeRate: 10,
 			Change: true,
+			PayToAddrScript: dcrharness.PayToAddrScript,
+			TxSerializeSize: dcrharness.TxSerializeSize,
 		}
 		tx, err := coinharness.CreateTransaction(r.Wallet, ctargs)
 		if err != nil {

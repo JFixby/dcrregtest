@@ -206,8 +206,10 @@ func checkJoinMempools(t *testing.T) {
 		Version:  wire.DefaultPkScriptVersion,
 	}
 	ctargs := &coinharness.CreateTransactionArgs{
-		Outputs: []*coinharness.TxOut{output},
-		FeeRate: coinharness.CoinsAmountFromFloat(10),
+		Outputs:         []*coinharness.TxOut{output},
+		FeeRate:         coinharness.CoinsAmountFromFloat(10),
+		PayToAddrScript: dcrharness.PayToAddrScript,
+		TxSerializeSize: dcrharness.TxSerializeSize,
 	}
 	testTx, err := coinharness.CreateTransaction(r.Wallet, ctargs)
 	if err != nil {
@@ -303,11 +305,12 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 		Version:  wire.DefaultPkScriptVersion,
 	}
 	ctargs := &coinharness.CreateTransactionArgs{
-		Outputs: []*coinharness.TxOut{output},
-		FeeRate: coinharness.CoinsAmountFromFloat(10),
+		Outputs:         []*coinharness.TxOut{output},
+		FeeRate:         coinharness.CoinsAmountFromFloat(10),
+		PayToAddrScript: dcrharness.PayToAddrScript,
+		TxSerializeSize: dcrharness.TxSerializeSize,
 	}
-	tx, err := coinharness.CreateTransaction(r.Wallet, ctargs)
-
+	_, err = coinharness.CreateTransaction(r.Wallet, ctargs)
 	if err != nil {
 		t.Fatalf("unable to create transaction: %v", err)
 	}
@@ -323,8 +326,8 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	// Now unlocked all the spent inputs within the unbroadcast signed
 	// transaction. The current balance should now be exactly that of the
 	// starting balance.
-	txin := tx.TxIn
-	r.Wallet.UnlockOutputs(txin)
+	//txin := tx.TxIn
+	//r.Wallet.UnlockOutputs(txin)
 	currentBalance = coinharness.GetBalance(t, r.Wallet).TotalSpendable
 	if currentBalance != startingBalance {
 		t.Fatalf("current and starting balance should now match: "+

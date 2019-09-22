@@ -80,10 +80,10 @@ github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5y
 github.com/gorilla/websocket v1.2.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
-github.com/jfixby/coinharness v0.0.0-20190922180403-3bc476022169 h1:p2E0f77aSnrKsxzWHelhhV91IfZRL/GTbTnB/WwNHWw=
-github.com/jfixby/coinharness v0.0.0-20190922180403-3bc476022169/go.mod h1:d/brli3srPhkdmg/3B9ZnaxEj6SgbZbGj27eapvPwOY=
-github.com/jfixby/dcrharness v0.0.0-20190922174243-8c3aeac370c5 h1:kLcwHsr4epdlrUljpX3qXEl9QVgHJxCfkGQf80zUq+0=
-github.com/jfixby/dcrharness v0.0.0-20190922174243-8c3aeac370c5/go.mod h1:i7Ix4FufvsFX+9dMIBsCNuQfRWrbv+UGT4XbW3/5DKQ=
+github.com/jfixby/coinharness v0.0.0-20190922182343-c6033cefacc1 h1:Ruh+UPgnWqn1oIek6/d6+6CBV5tAQQLL78JUnHdkTJw=
+github.com/jfixby/coinharness v0.0.0-20190922182343-c6033cefacc1/go.mod h1:d/brli3srPhkdmg/3B9ZnaxEj6SgbZbGj27eapvPwOY=
+github.com/jfixby/dcrharness v0.0.0-20190922183419-f5339a108ffa h1:amLOnHayeFF3kA0trnAUgOD5lVNjTS80djHhlNWdgVU=
+github.com/jfixby/dcrharness v0.0.0-20190922183419-f5339a108ffa/go.mod h1:i7Ix4FufvsFX+9dMIBsCNuQfRWrbv+UGT4XbW3/5DKQ=
 github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c h1:VVO+vlTdgPlkrNzgImAywNR/STScjb/MwiTLRd/R/vc=
 github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c/go.mod h1:fcyyZW36sY5GM2qsX/sewjJu7y5ngGKoELUbDEccDqY=
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=

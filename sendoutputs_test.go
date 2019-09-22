@@ -3,7 +3,6 @@ package dcrregtest
 import (
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
-	"github.com/jfixby/dcrharness"
 	"github.com/jfixby/pin"
 	"testing"
 
@@ -13,7 +12,7 @@ import (
 	"github.com/decred/dcrd/wire"
 )
 
-func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainhash.Hash {
+func genSpend(t *testing.T, r *coinharness.Harness, amt coinharness.CoinsAmount) *chainhash.Hash {
 	// Grab a fresh address from the wallet.
 	addr, err := r.Wallet.NewAddress(&coinharness.NewAddressArgs{"default"})
 	if err != nil {
@@ -26,10 +25,15 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainha
 	if err != nil {
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
-	output := wire.NewTxOut(int64(amt), addrScript)
+
+	output := &coinharness.TxOut{
+		Amount:   amt,
+		PkScript: addrScript,
+		Version:  wire.DefaultPkScriptVersion,
+	}
 	arg := &coinharness.SendOutputsArgs{
-		Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
-		FeeRate: 10,
+		Outputs: []*coinharness.TxOut{output},
+		FeeRate: coinharness.CoinsAmountFromFloat(10),
 	}
 	txid, err := r.Wallet.SendOutputs(arg)
 	if err != nil {
@@ -64,10 +68,10 @@ func TestBallance(t *testing.T) {
 	//}
 	r := ObtainHarness(t.Name() + ".8")
 
-	expectedBalance := dcrutil.Amount(7200 * dcrutil.AtomsPerCoin)
-	actualBalance := coinharness.GetBalance(t, r.Wallet).TotalSpendable.(dcrutil.Amount)
+	expectedBalance := coinharness.CoinsAmountFromFloat(7200)
+	actualBalance := coinharness.GetBalance(t, r.Wallet).TotalSpendable
 
-	if actualBalance != expectedBalance {
+	if actualBalance.AtomsValue != expectedBalance.AtomsValue {
 		t.Fatalf("expected wallet balance of %v instead have %v",
 			expectedBalance, actualBalance)
 	}
@@ -84,7 +88,7 @@ func TestSendOutputs(t *testing.T) {
 	r.Wallet.Sync(H)
 	// First, generate a small spend which will require only a single
 	// input.
-	txid := genSpend(t, r, dcrutil.Amount(5*dcrutil.AtomsPerCoin))
+	txid := genSpend(t, r, coinharness.CoinsAmountFromFloat(5))
 
 	// Generate a single block, the transaction the wallet created should
 	// be found in this block.
@@ -96,7 +100,7 @@ func TestSendOutputs(t *testing.T) {
 
 	// Next, generate a spend much greater than the block reward. This
 	// transaction should also have been mined properly.
-	txid = genSpend(t, r, dcrutil.Amount(1000*dcrutil.AtomsPerCoin))
+	txid = genSpend(t, r, coinharness.CoinsAmountFromFloat(1000))
 	blockHashes, err = r.NodeRPCClient().Generate(1)
 	if err != nil {
 		t.Fatalf("unable to generate single block: %v", err)
