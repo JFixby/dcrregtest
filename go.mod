@@ -11,7 +11,7 @@ require (
 	github.com/decred/dcrd/rpcclient v1.1.0
 	github.com/decred/dcrd/wire v1.2.0
 	github.com/decred/dcrwallet/errors v1.1.0
-	github.com/jfixby/coinharness v0.0.0-20190922212545-5d6b5a866fb8
-	github.com/jfixby/dcrharness v0.0.0-20190922212630-f08be9b1ad80
+	github.com/jfixby/coinharness v0.0.0-20190922220615-707a2a187ed0
+	github.com/jfixby/dcrharness v0.0.0-20190922220639-909e5ffba575
 	github.com/jfixby/pin v0.0.0-20190810181909-8c18ae7f9c3c
 )
