@@ -31,7 +31,7 @@ func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
 	txns := make([]*dcrutil.Tx, 0, numTxns)
 	for i := 0; i < numTxns; i++ {
 		ctargs := &coinharness.CreateTransactionArgs{
-			Outputs: []coinharness.OutputTx{&dcrharness.OutputTx{output}},
+			Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 			FeeRate: 10,
 			Change:  true,
 		}

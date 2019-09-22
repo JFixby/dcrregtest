@@ -203,7 +203,7 @@ func checkJoinMempools(t *testing.T) {
 
 	output := wire.NewTxOut(5e8, addrScript)
 	ctargs := &coinharness.CreateTransactionArgs{
-		Outputs: []coinharness.OutputTx{&dcrharness.OutputTx{output}},
+		Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 		FeeRate: 10,
 	}
 	testTx, err := r.Wallet.CreateTransaction(ctargs)
@@ -295,7 +295,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	outputAmt := dcrutil.Amount(50 * dcrutil.AtomsPerCoin)
 	output := wire.NewTxOut(int64(outputAmt), pkScript)
 	ctargs := &coinharness.CreateTransactionArgs{
-		Outputs: []coinharness.OutputTx{&dcrharness.OutputTx{output}},
+		Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 		FeeRate: 10,
 	}
 	tx, err := r.Wallet.CreateTransaction(ctargs)

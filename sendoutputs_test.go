@@ -28,7 +28,7 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt dcrutil.Amount) *chainha
 	}
 	output := wire.NewTxOut(int64(amt), addrScript)
 	arg := &coinharness.SendOutputsArgs{
-		Outputs: []coinharness.OutputTx{&dcrharness.OutputTx{output}},
+		Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 		FeeRate: 10,
 	}
 	txid, err := r.Wallet.SendOutputs(arg)
