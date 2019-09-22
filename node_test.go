@@ -10,6 +10,7 @@ import (
 	"github.com/decred/dcrd/wire"
 	"github.com/jfixby/coinharness"
 	"github.com/jfixby/dcrharness"
+	"github.com/jfixby/pin"
 	"testing"
 	"time"
 )
@@ -196,10 +197,16 @@ func checkJoinMempools(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unable to generate address: %v", err)
 	}
-	addrScript, err := txscript.PayToAddrScript(addr.Internal().(dcrutil.Address))
+	addrScript, err := dcrharness.PayToAddrScript(addr)
 	if err != nil {
 		t.Fatalf("unable to generate pkscript to addr: %v", err)
 	}
+
+	accounts, err := r.Wallet.ListAccounts()
+	if err != nil {
+		t.Fatalf("unable to ListAccounts: %v", err)
+	}
+	pin.S("accounts", accounts)
 
 	output := &coinharness.TxOut{
 		Amount:   coinharness.CoinsAmountFromFloat(5),
@@ -211,11 +218,13 @@ func checkJoinMempools(t *testing.T) {
 		FeeRate:         coinharness.CoinsAmount{10},
 		PayToAddrScript: dcrharness.PayToAddrScript,
 		TxSerializeSize: dcrharness.TxSerializeSize,
+		Account:         coinharness.DefaultAccountName,
 	}
 	testTx, err := coinharness.CreateTransaction(r.Wallet, ctargs)
 	if err != nil {
 		t.Fatalf("coinbase spend failed: %v", err)
 	}
+	pin.S("testTx", testTx)
 	if _, err := r.NodeRPCClient().SendRawTransaction(testTx, true); err != nil {
 		t.Fatalf("send transaction failed: %v", err)
 	}
@@ -310,6 +319,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 		FeeRate:         coinharness.CoinsAmount{10},
 		PayToAddrScript: dcrharness.PayToAddrScript,
 		TxSerializeSize: dcrharness.TxSerializeSize,
+		Account:         coinharness.DefaultAccountName,
 	}
 	_, err = coinharness.CreateTransaction(r.Wallet, ctargs)
 	if err != nil {

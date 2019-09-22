@@ -41,6 +41,7 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 			Change:          true,
 			PayToAddrScript: dcrharness.PayToAddrScript,
 			TxSerializeSize: dcrharness.TxSerializeSize,
+			Account:         coinharness.DefaultAccountName,
 		}
 		tx, err := coinharness.CreateTransaction(r.Wallet, ctargs)
 		if err != nil {
