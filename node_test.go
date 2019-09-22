@@ -192,7 +192,7 @@ func checkJoinMempools(t *testing.T) {
 
 	// Generate a coinbase spend to a new address within the main harness'
 	// mempool.
-	addr, err := r.Wallet.NewAddress(nil)
+	addr, err := r.Wallet.NewAddress(coinharness.DefaultAccountName)
 	if err != nil {
 		t.Fatalf("unable to generate address: %v", err)
 	}
@@ -287,10 +287,10 @@ func checkJoinMempools(t *testing.T) {
 func TestMemWalletLockedOutputs(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 	// Obtain the initial balance of the wallet at this point.
-	startingBalance := coinharness.GetBalance(t, r.Wallet).TotalSpendable
+	startingBalance := coinharness.GetBalance(t, r.Wallet).Balances[coinharness.DefaultAccountName].Spendable
 
 	// First, create a signed transaction spending some outputs.
-	addr, err := r.Wallet.NewAddress(nil)
+	addr, err := r.Wallet.NewAddress(coinharness.DefaultAccountName)
 	if err != nil {
 		t.Fatalf("unable to generate new address: %v", err)
 	}
@@ -318,7 +318,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 
 	// The current wallet balance should now be at least 50 BTC less
 	// (accounting for fees) than the period balance
-	currentBalance := coinharness.GetBalance(t, r.Wallet).TotalSpendable
+	currentBalance := coinharness.GetBalance(t, r.Wallet).Balances[coinharness.DefaultAccountName].Spendable
 	if !(currentBalance.AtomsValue <= startingBalance.AtomsValue-outputAmt.AtomsValue) {
 		t.Fatalf("spent outputs not locked: previous balance %v, "+
 			"current balance %v", startingBalance, currentBalance)
@@ -329,7 +329,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	// starting balance.
 	//txin := tx.TxIn
 	//r.Wallet.UnlockOutputs(txin)
-	currentBalance = coinharness.GetBalance(t, r.Wallet).TotalSpendable
+	currentBalance = coinharness.GetBalance(t, r.Wallet).Balances[coinharness.DefaultAccountName].Spendable
 	if currentBalance != startingBalance {
 		t.Fatalf("current and starting balance should now match: "+
 			"expected %v, got %v", startingBalance, currentBalance)
@@ -364,7 +364,7 @@ func TestMemWalletReorg(t *testing.T) {
 	h.Wallet.Sync(testSetup.Regnet5.NumMatureOutputs)
 
 	expectedBalance := coinharness.CoinsAmountFromFloat(1200)
-	walletBalance := coinharness.GetBalance(t, h.Wallet).TotalSpendable
+	walletBalance := coinharness.GetBalance(t, h.Wallet).Balances[coinharness.DefaultAccountName].Spendable
 	if expectedBalance.AtomsValue != walletBalance.AtomsValue {
 		t.Fatalf("wallet balance incorrect: expected %v, got %v",
 			expectedBalance, walletBalance)
@@ -384,7 +384,7 @@ func TestMemWalletReorg(t *testing.T) {
 	// chain should have been decimated in favor of the main h'
 	// chain.
 	expectedBalance = coinharness.CoinsAmountFromFloat(0)
-	walletBalance = coinharness.GetBalance(t, h.Wallet).TotalSpendable
+	walletBalance = coinharness.GetBalance(t, h.Wallet).Balances[coinharness.DefaultAccountName].Spendable
 	if expectedBalance.AtomsValue != walletBalance.AtomsValue {
 		t.Fatalf("wallet balance incorrect: expected %v, got %v",
 			expectedBalance, walletBalance)
