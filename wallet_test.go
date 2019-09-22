@@ -11,6 +11,7 @@ import (
 	"github.com/decred/dcrd/txscript"
 	"github.com/decred/dcrwallet/wallet"
 	"github.com/google/go-cmp/cmp"
+	"github.com/jfixby/pin"
 	"math"
 	"math/big"
 	"reflect"
@@ -329,11 +330,19 @@ func TestValidateAddress(t *testing.T) {
 func TestGetBalance(t *testing.T) {
 
 	r := ObtainWalletHarness(mainWalletHarnessName)
-	// Wallet RPC client
 	wcl := r.Wallet
 
+	err := wcl.WalletUnlock(defaultWalletPassphrase, 0)
+	if err != nil {
+		t.Fatal("Failed to unlock wallet:", err)
+	}
+
+	balance, err := wcl.GetBalance("")
+
+	pin.D("balance", balance)
+
 	accountName := "getBalanceTest"
-	err := wcl.CreateNewAccount(accountName)
+	err = wcl.CreateNewAccount(accountName)
 	if err != nil {
 		t.Fatalf("CreateNewAccount failed: %v", err)
 	}
