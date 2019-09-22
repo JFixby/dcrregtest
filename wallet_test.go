@@ -11,7 +11,6 @@ import (
 	"github.com/decred/dcrd/txscript"
 	"github.com/decred/dcrwallet/wallet"
 	"github.com/google/go-cmp/cmp"
-	"github.com/jfixby/coinharness"
 	"github.com/jfixby/pin"
 	"math"
 	"math/big"
@@ -343,7 +342,7 @@ func TestGetBalance(t *testing.T) {
 		t.Fatal("Failed to unlock wallet:", err)
 	}
 
-	_, err = wcl.GetBalance(coinharness.DefaultAccountName)
+	_, err = wcl.GetBalance()
 	if err != nil {
 		t.Fatalf("GetBalance failed: %v", err)
 	}
