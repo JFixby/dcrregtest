@@ -329,7 +329,6 @@ func TestValidateAddress(t *testing.T) {
 }
 
 func TestGetBalance(t *testing.T) {
-
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	wcl := r.Wallet
 
