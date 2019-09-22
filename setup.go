@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/jfixby/coinharness"
 	"github.com/jfixby/dcrharness"
-	"github.com/jfixby/dcrharness/nodecls"
-	"github.com/jfixby/dcrharness/walletcls"
 	"github.com/jfixby/pin"
 	"github.com/jfixby/pin/commandline"
 	"github.com/jfixby/pin/gobuilder"
@@ -88,7 +86,7 @@ func Setup() *SimpleTestSetup {
 	wEXE := &commandline.ExplicitExecutablePathString{
 		PathString: "dcrwallet",
 	}
-	consoleWalletFactory := &walletcls.ConsoleWalletFactory{
+	consoleWalletFactory := &dcrharness.ConsoleWalletFactory{
 		WalletExecutablePathProvider: wEXE,
 	}
 
@@ -99,7 +97,7 @@ func Setup() *SimpleTestSetup {
 	dEXE := &commandline.ExplicitExecutablePathString{
 		PathString: "dcrd",
 	}
-	nodeFactory := &nodecls.ConsoleNodeFactory{
+	nodeFactory := &dcrharness.ConsoleNodeFactory{
 		NodeExecutablePathProvider: dEXE,
 	}
 

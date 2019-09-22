@@ -3,6 +3,7 @@ package dcrregtest
 import (
 	"github.com/decred/dcrd/rpcclient"
 	"github.com/jfixby/coinharness"
+	"github.com/jfixby/dcrharness"
 	"github.com/jfixby/pin"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 	"github.com/decred/dcrd/wire"
 )
 
-func genSpend(t *testing.T, r *coinharness.Harness, amt coinharness.CoinsAmount) *chainhash.Hash {
+func genSpend(t *testing.T, r *coinharness.Harness, amt coinharness.CoinsAmount) coinharness.Hash {
 	// Grab a fresh address from the wallet.
 	addr, err := r.Wallet.NewAddress(&coinharness.NewAddressArgs{"default"})
 	if err != nil {
@@ -31,18 +32,21 @@ func genSpend(t *testing.T, r *coinharness.Harness, amt coinharness.CoinsAmount)
 		PkScript: addrScript,
 		Version:  wire.DefaultPkScriptVersion,
 	}
-	arg := &coinharness.SendOutputsArgs{
-		Outputs: []*coinharness.TxOut{output},
-		FeeRate: coinharness.CoinsAmountFromFloat(10),
+	arg := &coinharness.CreateTransactionArgs{
+		Outputs:         []*coinharness.TxOut{output},
+		FeeRate:         coinharness.CoinsAmountFromFloat(10),
+		PayToAddrScript: dcrharness.PayToAddrScript,
+		TxSerializeSize: dcrharness.TxSerializeSize,
 	}
-	txid, err := r.Wallet.SendOutputs(arg)
+
+	txid, err := coinharness.CreateTransaction(r.Wallet, arg)
 	if err != nil {
 		t.Fatalf("coinbase spend failed: %v", err)
 	}
-	return txid.(*chainhash.Hash)
+	return txid.TxHash
 }
 
-func assertTxMined(t *testing.T, r *coinharness.Harness, txid *chainhash.Hash, blockHash *chainhash.Hash) {
+func assertTxMined(t *testing.T, r *coinharness.Harness, txid coinharness.Hash, blockHash *chainhash.Hash) {
 	block, err := r.NodeRPCClient().Internal().(*rpcclient.Client).GetBlock(blockHash)
 	if err != nil {
 		t.Fatalf("unable to get block: %v", err)
@@ -56,7 +60,7 @@ func assertTxMined(t *testing.T, r *coinharness.Harness, txid *chainhash.Hash, b
 
 	txHash1 := block.Transactions[1].TxHash()
 
-	if txHash1 != *txid {
+	if txHash1 != txid {
 		t.Fatalf("txid's don't match, %v vs %v", txHash1, txid)
 	}
 }
