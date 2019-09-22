@@ -16,7 +16,7 @@ func TestBallance(t *testing.T) {
 	r := ObtainHarness(t.Name() + ".8")
 
 	expectedBalance := coinharness.CoinsAmountFromFloat(7200)
-	actualBalance := coinharness.GetBalance(t, r.Wallet).TotalSpendable
+	actualBalance := coinharness.GetBalance(t, r.Wallet).Balances[coinharness.DefaultAccountName].Spendable
 
 	if actualBalance.AtomsValue != expectedBalance.AtomsValue {
 		t.Fatalf("expected wallet balance of %v instead have %v",

@@ -20,7 +20,7 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 	r := ObtainHarness(mainHarnessName)
 
 	// Generate a few test spend transactions.
-	addr, err := r.Wallet.NewAddress(nil)
+	addr, err := r.Wallet.NewAddress(coinharness.DefaultAccountName)
 	if err != nil {
 		t.Fatalf("unable to generate new address: %v", err)
 	}
