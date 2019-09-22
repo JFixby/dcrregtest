@@ -36,6 +36,7 @@ func TestSendOutputs(t *testing.T) {
 	// First, generate a small spend which will require only a single
 	// input.
 	txid := coinharness.GenSpend(t, r,
+		coinharness.DefaultAccountName,
 		coinharness.CoinsAmountFromFloat(5),
 		wire.DefaultPkScriptVersion,
 		dcrharness.PayToAddrScript,
@@ -53,6 +54,7 @@ func TestSendOutputs(t *testing.T) {
 	// Next, generate a spend much greater than the block reward. This
 	// transaction should also have been mined properly.
 	txid = coinharness.GenSpend(t, r,
+		coinharness.DefaultAccountName,
 		coinharness.CoinsAmountFromFloat(1000),
 		wire.DefaultPkScriptVersion,
 		dcrharness.PayToAddrScript,
