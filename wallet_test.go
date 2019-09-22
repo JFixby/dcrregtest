@@ -332,13 +332,21 @@ func TestGetBalance(t *testing.T) {
 	r := ObtainWalletHarness(mainWalletHarnessName)
 	wcl := r.Wallet
 
-	err := wcl.WalletUnlock(defaultWalletPassphrase, 0)
+	list, err := wcl.ListAccounts()
+	if err != nil {
+		t.Fatalf("ListAccounts failed: %v", err)
+	}
+	pin.D("ListAccounts", list)
+
+	err = wcl.WalletUnlock(defaultWalletPassphrase, 0)
 	if err != nil {
 		t.Fatal("Failed to unlock wallet:", err)
 	}
 
 	balance, err := wcl.GetBalance("")
-
+	if err != nil {
+		t.Fatalf("GetBalance failed: %v", err)
+	}
 	pin.D("balance", balance)
 
 	accountName := "getBalanceTest"
