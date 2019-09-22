@@ -38,7 +38,7 @@ func TestGenerateAndSubmitBlock(t *testing.T) {
 			//&dcrharness.OutputTx{output}
 			//Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 			//FeeRate: 10,
-			Change: true,
+			Change:          true,
 			PayToAddrScript: dcrharness.PayToAddrScript,
 			TxSerializeSize: dcrharness.TxSerializeSize,
 		}

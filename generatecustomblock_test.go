@@ -33,7 +33,7 @@ func TestGenerateAndSubmitBlockWithCustomCoinbaseOutputs(t *testing.T) {
 		ctargs := &coinharness.CreateTransactionArgs{
 			//Outputs: []coinharness.TxOut{&dcrharness.OutputTx{output}},
 			//FeeRate: 10,
-			Change: true,
+			Change:          true,
 			PayToAddrScript: dcrharness.PayToAddrScript,
 			TxSerializeSize: dcrharness.TxSerializeSize,
 		}

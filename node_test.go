@@ -9,6 +9,7 @@ import (
 	"github.com/decred/dcrd/txscript"
 	"github.com/decred/dcrd/wire"
 	"github.com/jfixby/coinharness"
+	"github.com/jfixby/dcrharness"
 	"testing"
 	"time"
 )
