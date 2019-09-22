@@ -208,7 +208,7 @@ func checkJoinMempools(t *testing.T) {
 	}
 	ctargs := &coinharness.CreateTransactionArgs{
 		Outputs:         []*coinharness.TxOut{output},
-		FeeRate:         coinharness.CoinsAmountFromFloat(10),
+		FeeRate:         coinharness.CoinsAmount{10},
 		PayToAddrScript: dcrharness.PayToAddrScript,
 		TxSerializeSize: dcrharness.TxSerializeSize,
 	}
@@ -307,7 +307,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 	}
 	ctargs := &coinharness.CreateTransactionArgs{
 		Outputs:         []*coinharness.TxOut{output},
-		FeeRate:         coinharness.CoinsAmountFromFloat(10),
+		FeeRate:         coinharness.CoinsAmount{10},
 		PayToAddrScript: dcrharness.PayToAddrScript,
 		TxSerializeSize: dcrharness.TxSerializeSize,
 	}
