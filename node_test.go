@@ -310,7 +310,7 @@ func TestMemWalletLockedOutputs(t *testing.T) {
 
 	outputAmt := coinharness.CoinsAmountFromFloat(50)
 	output := &coinharness.TxOut{
-		Amount:   outputAmt,
+		Value:    outputAmt,
 		PkScript: pkScript,
 		Version:  wire.DefaultPkScriptVersion,
 	}

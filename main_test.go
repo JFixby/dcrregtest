@@ -33,13 +33,13 @@ func TestMain(m *testing.M) {
 		// otherwise they will be created on request.
 		{
 			tagsList := []string{
-				mainHarnessName,
+				//mainHarnessName,
 			}
 			testSetup.harnessPool.InitTags(tagsList)
 		}
 		{
 			tagsList := []string{
-				mainWalletHarnessName,
+				//mainWalletHarnessName,
 			}
 			testSetup.harnessWalletPool.InitTags(tagsList)
 		}
