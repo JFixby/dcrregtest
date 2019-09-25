@@ -209,7 +209,7 @@ func checkJoinMempools(t *testing.T) {
 	pin.S("accounts", accounts)
 
 	output := &coinharness.TxOut{
-		Amount:   coinharness.CoinsAmountFromFloat(5),
+		Value:   coinharness.CoinsAmountFromFloat(5),
 		PkScript: addrScript,
 		Version:  wire.DefaultPkScriptVersion,
 	}
