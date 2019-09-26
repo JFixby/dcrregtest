@@ -81,7 +81,7 @@ func Setup() *SimpleTestSetup {
 		WorkingDir: pin.NewTempDir(setupWorkingDir(), "simpleregtest").MakeDir(),
 	}
 
-	//memWalletFactory := &memwallet.WalletFactory{}
+	memWalletFactory := &dcrharness.WalletFactory{}
 
 	wEXE := &commandline.ExplicitExecutablePathString{
 		PathString: "dcrwallet",
@@ -90,7 +90,7 @@ func Setup() *SimpleTestSetup {
 		WalletExecutablePathProvider: wEXE,
 	}
 
-	regnetWalletFactory := consoleWalletFactory
+	regnetWalletFactory := memWalletFactory
 	mainnetWalletFactory := consoleWalletFactory
 	simnetWalletFactory := consoleWalletFactory
 
@@ -102,7 +102,7 @@ func Setup() *SimpleTestSetup {
 	}
 
 	portManager := &coinharness.LazyPortManager{
-		BasePort: 30000,
+		BasePort: 40000,
 	}
 
 	testSeed := dcrharness.NewTestSeed
