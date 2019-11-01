@@ -18,7 +18,7 @@ go test ./...
  
  ## Tip
  
- The `master` branch is WIP. Use the latest working build from travis: [travis-ci.org/jfixby/dcrregtest/builds](https://travis-ci.org/jfixby/dcrregtest/builds)
+ The `master` branch is WIP. Use the latest working build from the travis: [travis-ci.org/jfixby/dcrregtest/builds](https://travis-ci.org/jfixby/dcrregtest/builds)
  
  ## License
  This code is licensed under the [copyfree](http://copyfree.org) ISC License.
